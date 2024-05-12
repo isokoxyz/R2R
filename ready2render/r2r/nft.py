@@ -1,4 +1,4 @@
-from asset import Asset
+from r2r.asset import Asset
 
 class NFT(Asset):
     def __init__(self, token_id, nft_id, collection_id, collection_name, chain_id):
@@ -7,3 +7,4 @@ class NFT(Asset):
         self.collection_id = collection_id
         self.collection_name = collection_name
         self.chain_id = chain_id
+        

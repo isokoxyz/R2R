@@ -13,23 +13,22 @@ from kad_py.main.kad_py_public import pact_build_and_fetch_local
 from config import SENDER, MAINNET_NETWORK_ID
 
 class CombineView(views.APIView):
-    # def post(self, destination_nft_id, attachment_nft_id, chain_id):
     def post(self, request):
-        # print(destination_nft_id)
-        # print(attachment_nft_id)
-        print(request.data)
+        delete_all_objects_in_scene()
+        data = request.data
         destination_nft = NFT(
-            token_id=request.dest_token_id, 
-            nft_id=request.dest_nft_id, 
-            collection_id=request.dest_collection_id,
-            collection_name=request.dest_collection_name,
-            chain_id=request.chain_id
+            token_id=data["dest_token_id"], 
+            nft_id=data["dest_nft_id"], 
+            collection_id=data["dest_collection_id"],
+            collection_name=data["dest_collection_name"],
+            chain_id=data["chain_id"]
         )
         permanent_node_names = ["Principled BSDF", "Material Output", "BAKED_TEXTURE"]
         # get nft manifests from blockchain
+        print("FETCHING NFT DATA")
         dest_nft_metadata = pact_build_and_fetch_local(
             sender=SENDER, 
-            pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(destination_nft.destination_nft_id), 
+            pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(data["dest_nft_id"]), 
             network_id=MAINNET_NETWORK_ID, 
             chain_id=destination_nft.chain_id
         )
@@ -43,41 +42,49 @@ class CombineView(views.APIView):
 
         # download glbs
         # dest_nft_glb = download_glb_asset("") #TODO: nft asset
-        # attachment_nft_glb = download_glb_asset("") #TODO: nft asset
+        # attachment_nft_image = download_glb_asset("") #TODO: nft asset
         dest_nft_glb = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\kadcar.glb'
-        attachment_nft_glb = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\sticker.jpg'
+        attachment_nft_image = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\sticker.jpg'
 
         # clear scene selection
         deselect_all_scene_objects()
 
         # import nft glbs into scene
+        if os.path.exists(dest_nft_glb):
+            print("EXISTS")
+        if os.path.exists(attachment_nft_image):
+            print("EXISTS")
         import_scene_into_collection(dest_nft_glb, "destination")
-        import_scene_into_collection(attachment_nft_glb, "attachment")
+        # import_scene_into_collection(attachment_nft_image, "attachment")
 
+        glb_path = 'K:/testingggg.glb' #TODO
+        export_scene(glb_path, export_all=True, format="GLB")
+        return HttpResponse("okokoko")
         # select nft objects
         deselect_all_scene_objects()
-        dest_object = select_object_by_name_and_make_active("") #TODO: add object name
-        attachment_object = select_object_by_name_and_make_active("") #TODO: add object name
+        dest_object = select_object_by_name_and_make_active("Car_Body") #TODO: add object name
+        bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
 
-        # combine the nfts (uv map stuff)
-        link_selected_objects_in_scene("") #TODO:
+        # link object data
+        # link_selected_objects_in_scene("OBDATA")
+
+        #fix kadcar rotation
         make_object_active(dest_object)
         dest_object.rotation_quaternion.x = 1.0
         apply_transform_to_selected_object(dest_object, location=True, rotation=True)
-
         deselect_all_scene_objects()
-        delete_objects_from_collection_name("") #TODO:
 
         #Retrieve bsdf values and node tree
+        print("SETTING UP SHADER NODES")
         bsdf = get_principled_bsdf_for_active_material(dest_object)
-        kadcar_color = get_input_value_from_bsdf(bsdf, 'Base Color')
+        base_color = get_input_value_from_bsdf(bsdf, 'Base Color')
         metallic_value = get_input_value_from_bsdf(bsdf, 'Metallic')
         node_tree = get_node_tree_for_selected_object(dest_object)
         nodes = node_tree.nodes
 
         #Create texture shader node for sticker
         texture_node = nodes.new("ShaderNodeTexImage")
-        texture_node.image = bpy.data.images.load("") #TODO: load image
+        texture_node.image = bpy.data.images.load(attachment_nft_image) #TODO: load image
         texture_node.name = "STICKER_NODE"
 
         #Create UV map node to specify destination
@@ -87,59 +94,61 @@ class CombineView(views.APIView):
 
         #Create Mix RGB node to set kadcar color
         mix_node = nodes.new("ShaderNodeMixRGB")
-        mix_node.inputs['Color1'].default_value = kadcar_color
+        mix_node.inputs['Color1'].default_value = base_color
         mix_node.name = "MIX_NODE"
 
         #Link all created nodes to the principled bsdf
+        print("CONNECTING ALL SHADER NODES")
         node_tree.links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
         node_tree.links.new(texture_node.outputs['Color'], mix_node.inputs['Color2'])
         node_tree.links.new(texture_node.outputs['Alpha'], mix_node.inputs['Fac'])
         node_tree.links.new(mix_node.outputs['Color'], bsdf.inputs['Base Color'])
 
         #Baking begins here
-        deselect_all_scene_objects()
+        # deselect_all_scene_objects()
         
         #Set up baking parameters
-        bsdf.inputs['Metallic'].default_value = 0.0
-        configure_bake_settings('CYCLES', 'CUDA', 'GPU', False, False, False, 'DIFFUSE')
+        # bsdf.inputs['Metallic'].default_value = 0.0
+        # configure_bake_settings('CYCLES', 'CUDA', 'GPU', False, False, False, 'DIFFUSE')
         
         #Select the main uv map for the kadcar
-        uv_layers = dest_object.data.uv_layers
-        uv_layer_names = [uv.name for uv in uv_layers]
-        for name in uv_layer_names:
-            if name == "UVMap":
-                uv_layers[name].active = True
-                print(name)
-                print(uv_layers[name])
+        # uv_layers = dest_object.data.uv_layers
+        # uv_layer_names = [uv.name for uv in uv_layers]
+        # for name in uv_layer_names:
+        #     if name == "UVMap":
+        #         uv_layers[name].active = True
+        #         print(name)
+        #         print(uv_layers[name])
 
         #Create a new texture image shader node for the baked texture destination
-        image_name = "baked_texture_image"
-        image = bpy.data.images.new(image_name, 4096, 4096)
-        bake_texture_node = nodes.new("ShaderNodeTexImage")
-        bake_texture_node.select = True
-        bake_texture_node.name = "BAKED_TEXTURE"
-        nodes.active = bake_texture_node
-        bake_texture_node.image = image
+        # image_name = "baked_texture_image"
+        # image = bpy.data.images.new(image_name, 4096, 4096)
+        # bake_texture_node = nodes.new("ShaderNodeTexImage")
+        # bake_texture_node.select = True
+        # bake_texture_node.name = "BAKED_TEXTURE"
+        # nodes.active = bake_texture_node
+        # bake_texture_node.image = image
         
-        #Select the kadcar body and bake
-        select_object_by_name_and_make_active('Car_Body')
-        bpy.ops.object.bake('INVOKE_DEFAULT', type='DIFFUSE', pass_filter={'COLOR'}, save_mode='EXTERNAL', target='IMAGE_TEXTURES')
+        # #Select the kadcar body and bake
+        # select_object_by_name_and_make_active('Car_Body')
+        # bpy.ops.object.bake('INVOKE_DEFAULT', type='DIFFUSE', pass_filter={'COLOR'}, save_mode='EXTERNAL', target='IMAGE_TEXTURES')
 
-        #Remove old unneeded nodes
-        for node in nodes:
-            print(node.name)
-            if node.name not in permanent_node_names:
-                nodes.remove(node)
+        # #Remove old unneeded nodes
+        # for node in nodes:
+        #     print(node.name)
+        #     if node.name not in permanent_node_names:
+        #         nodes.remove(node)
         
-        #Link new baked texture shader node to the principled bsdf
-        node_tree.links.new(bake_texture_node.outputs['Color'], bsdf.inputs['Base Color'])
+        # #Link new baked texture shader node to the principled bsdf
+        # node_tree.links.new(bake_texture_node.outputs['Color'], bsdf.inputs['Base Color'])
         
         #Restore the metallic value of the car 
-        set_input_value_in_bsdf(bsdf, 'Metallic', metallic_value)
+        # set_input_value_in_bsdf(bsdf, 'Metallic', metallic_value)
 
         #Complete scene details and export
-        glb_path = '' #TODO
-        add_hdri_to_scene('storage')
+        print("EXPORTING NOW")
+        glb_path = 'K:/stickered.glb' #TODO
+        
         export_scene(glb_path, export_all=True, format="GLB")
 
         return glb_path

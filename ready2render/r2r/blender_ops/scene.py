@@ -52,7 +52,7 @@ def select_all_objects_in_collection(collection):
                     o.select_set(True)
 
 # Import / Export
-def import_scene_into_collection(file_path, collection_name):
+def import_scene_into_collection(file_path, collection_name): 
     bpy.ops.object.select_all(action='DESELECT')
     
     if collection_name in bpy.data.collections:
@@ -66,26 +66,29 @@ def import_scene_into_collection(file_path, collection_name):
 
 def export_scene(output_file, export_all=True, format='GLB'):
     if export_all:
-        bpy.ops.object.select_all(action="SELECT")
+        bpy.ops.object.select_all(action='SELECT')
+    # print("OVERRIDING CONTEXT")
+    # context_override = bpy.context.copy()
+    # context_override["active_object"] = None
 
-    if format == "GLB":
-        bpy.ops.export_scene.gltf(
-            # filepath=os.path.join(filepath, output_file),
-            filepath=output_file,
-            use_selection=True,
-            export_format=format,
-            export_apply=True,
-            export_texcoords=True,
-            export_normals=True,
-            export_tangents=True,
-            export_materials='EXPORT',
-            export_colors=True,
-            export_cameras=export_all,
-            export_animations=False
-            # use_mesh_edges=True,
-            # use_mesh_vertices=True,
-            # export_extras=True
-        )
+    with bpy.context.temp_override(active_object=bpy.data.objects["Car_Body"], window=bpy.context.window):
+        if format == "GLB":
+            bpy.ops.export_scene.gltf(
+                filepath=output_file,
+                use_selection=True,
+                export_format=format,
+                export_apply=True,
+                export_texcoords=True,
+                export_normals=True,
+                export_tangents=True,
+                export_materials='EXPORT',
+                export_colors=True,
+                export_cameras=True,
+                export_animations=False
+                # use_mesh_edges=True,
+                # use_mesh_vertices=True,
+                # export_extras=True
+            )
 
 # Object operations
 def rename_object_in_scene(old_name, new_name):
@@ -120,9 +123,11 @@ def select_object_by_name_and_make_active(object_name):
     selected_object = bpy.data.objects.get(object_name)
     # selected_object.select_set(True)
     # bpy.context.view_layer.objects.active = selected_object
-    selected_object  = select_object_and_make_active(selected_object)
+    select_object_and_make_active(selected_object)
 
-def link_selected_objects_in_scene (name):
+    return selected_object
+
+def link_selected_objects_in_scene(name):
     bpy.ops.object.make_links_data(type=name)
 
 def make_object_active(object):

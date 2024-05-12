@@ -3,7 +3,7 @@ import re
 import json
 import requests
 import subprocess
-from utils.io_utils import *
+from r2r.utils.io_utils import *
 from config import IPFS_BEARER_TOKEN
 
 IPFS_URL_PREFIX = "https://api.nft.storage/"

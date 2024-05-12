@@ -1,72 +1,15 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from rest_framework import views
-from r2r.blender_ops.scene import *
-from r2r.blender_ops.render import *
-from r2r.blender_ops.shaders import *
-from r2r.blender_ops.camera import *
-from r2r.kadcars.kadcars_shaders import add_hdri_to_scene
-from r2r.ipfs_utils.ipfs_utils import download_glb_asset
-from r2r.nft import NFT
-from r2r.utils.io_utils import *
+from blender_ops.scene import *
+from blender_ops.render import *
+from blender_ops.shaders import *
+from blender_ops.camera import *
+from kadcars.kadcars_shaders import add_hdri_to_scene
 from kad_py.main.kad_py_public import pact_build_and_fetch_local
+from ipfs_utils.ipfs_utils import download_glb_asset
 from config import SENDER, MAINNET_NETWORK_ID
 
-class CombineView(views.APIView):
-    # def post(self, destination_nft_id, attachment_nft_id, chain_id):
-    def post(self, request):
-        # print(destination_nft_id)
-        # print(attachment_nft_id)
-        print(request.data)
-        destination_nft = NFT(
-            token_id=request.dest_token_id, 
-            nft_id=request.dest_nft_id, 
-            collection_id=request.dest_collection_id,
-            collection_name=request.dest_collection_name,
-            chain_id=request.chain_id
-        )
+class KadcarsUpgrades():
+    def attach_nft(dest_object):
         permanent_node_names = ["Principled BSDF", "Material Output", "BAKED_TEXTURE"]
-        # get nft manifests from blockchain
-        dest_nft_metadata = pact_build_and_fetch_local(
-            sender=SENDER, 
-            pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(destination_nft.destination_nft_id), 
-            network_id=MAINNET_NETWORK_ID, 
-            chain_id=destination_nft.chain_id
-        )
-
-        # attachment_nft_metadata = pact_build_and_fetch_local(
-        #     sender=SENDER, 
-        #     pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(attachment_nft_id), 
-        #     network_id=MAINNET_NETWORK_ID, 
-        #     chain_id=chain_id
-        # )
-
-        # download glbs
-        # dest_nft_glb = download_glb_asset("") #TODO: nft asset
-        # attachment_nft_glb = download_glb_asset("") #TODO: nft asset
-        dest_nft_glb = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\kadcar.glb'
-        attachment_nft_glb = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\sticker.jpg'
-
-        # clear scene selection
-        deselect_all_scene_objects()
-
-        # import nft glbs into scene
-        import_scene_into_collection(dest_nft_glb, "destination")
-        import_scene_into_collection(attachment_nft_glb, "attachment")
-
-        # select nft objects
-        deselect_all_scene_objects()
-        dest_object = select_object_by_name_and_make_active("") #TODO: add object name
-        attachment_object = select_object_by_name_and_make_active("") #TODO: add object name
-
-        # combine the nfts (uv map stuff)
-        link_selected_objects_in_scene("") #TODO:
-        make_object_active(dest_object)
-        dest_object.rotation_quaternion.x = 1.0
-        apply_transform_to_selected_object(dest_object, location=True, rotation=True)
-
-        deselect_all_scene_objects()
-        delete_objects_from_collection_name("") #TODO:
 
         #Retrieve bsdf values and node tree
         bsdf = get_principled_bsdf_for_active_material(dest_object)

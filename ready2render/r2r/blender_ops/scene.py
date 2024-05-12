@@ -1,6 +1,6 @@
 import bpy
 from pygltflib import GLTF2
-from materials import transfer_materials
+from r2r.blender_ops.materials import transfer_materials
 
 # Deletion
 def delete_all_objects_in_scene():

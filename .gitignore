@@ -1,2 +1,6 @@
 /env
 *.env
+*.glb
+*.jpg
+*db.sqlite3
+*.pyc

@@ -18,5 +18,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('r2r', include("r2r.urls"))
+    path('r2r/', include(("r2r.routers", "r2r"), namespace="r2r"))
 ]

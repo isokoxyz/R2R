@@ -14,6 +14,31 @@ from config import SENDER, MAINNET_NETWORK_ID
 
 class CombineView(views.APIView):
     def post(self, request):
+        collection_name = "lol"
+        bpy.ops.object.select_all(action='DESELECT')
+        if collection_name in bpy.data.collections:
+            if bpy.data.collections[collection_name] is not bpy.context.scene.collection:
+                bpy.data.collections.remove(bpy.data.collections[collection_name])
+        bpy.ops.import_scene.gltf(filepath='C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\kadcar.glb')
+        bpy.ops.collection.create(name=collection_name)
+        bpy.ops.object.select_all(action='SELECT')
+        bpy.ops.export_scene.gltf(
+            filepath="K:/lol.glb",
+            use_selection=True,
+            export_format="GLB",
+            export_apply=True,
+            export_texcoords=True,
+            export_normals=True,
+            export_tangents=True,
+            export_materials='EXPORT',
+            export_colors=True,
+            export_cameras=True,
+            export_animations=False
+            # use_mesh_edges=True,
+            # use_mesh_vertices=True,
+            # export_extras=True
+        )
+        return HttpResponse("okokoko")
         delete_all_objects_in_scene()
         data = request.data
         destination_nft = NFT(
@@ -23,15 +48,14 @@ class CombineView(views.APIView):
             collection_name=data["dest_collection_name"],
             chain_id=data["chain_id"]
         )
-        permanent_node_names = ["Principled BSDF", "Material Output", "BAKED_TEXTURE"]
         # get nft manifests from blockchain
-        print("FETCHING NFT DATA")
-        dest_nft_metadata = pact_build_and_fetch_local(
-            sender=SENDER, 
-            pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(data["dest_nft_id"]), 
-            network_id=MAINNET_NETWORK_ID, 
-            chain_id=destination_nft.chain_id
-        )
+        # print("FETCHING NFT DATA")
+        # dest_nft_metadata = pact_build_and_fetch_local(
+        #     sender=SENDER, 
+        #     pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(data["dest_nft_id"]), 
+        #     network_id=MAINNET_NETWORK_ID, 
+        #     chain_id=destination_nft.chain_id
+        # )
 
         # attachment_nft_metadata = pact_build_and_fetch_local(
         #     sender=SENDER, 
@@ -50,16 +74,9 @@ class CombineView(views.APIView):
         deselect_all_scene_objects()
 
         # import nft glbs into scene
-        if os.path.exists(dest_nft_glb):
-            print("EXISTS")
-        if os.path.exists(attachment_nft_image):
-            print("EXISTS")
         import_scene_into_collection(dest_nft_glb, "destination")
         # import_scene_into_collection(attachment_nft_image, "attachment")
 
-        glb_path = 'K:/testingggg.glb' #TODO
-        export_scene(glb_path, export_all=True, format="GLB")
-        return HttpResponse("okokoko")
         # select nft objects
         deselect_all_scene_objects()
         dest_object = select_object_by_name_and_make_active("Car_Body") #TODO: add object name
@@ -105,6 +122,7 @@ class CombineView(views.APIView):
         node_tree.links.new(mix_node.outputs['Color'], bsdf.inputs['Base Color'])
 
         #Baking begins here
+        # permanent_node_names = ["Principled BSDF", "Material Output", "BAKED_TEXTURE"]
         # deselect_all_scene_objects()
         
         #Set up baking parameters

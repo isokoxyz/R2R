@@ -1,43 +1,54 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework import views
-from r2r.blender_ops.scene import *
-from r2r.blender_ops.render import *
-from r2r.blender_ops.shaders import *
-from r2r.blender_ops.camera import *
-from r2r.kadcars.kadcars_shaders import add_hdri_to_scene
-from r2r.ipfs_utils.ipfs_utils import download_glb_asset
-from r2r.nft import NFT
+from multiprocessing import Pool
+# from r2r.blender_ops.scene import *
+# from r2r.blender_ops.render import *
+# from r2r.blender_ops.shaders import *
+# from r2r.blender_ops.camera import *
+# from r2r.kadcars.kadcars_shaders import add_hdri_to_scene
+# from r2r.ipfs_utils.ipfs_utils import download_glb_asset
+# from r2r.nft import NFT
 from r2r.utils.io_utils import *
-from kad_py.main.kad_py_public import pact_build_and_fetch_local
+# from kad_py.main.kad_py_public import pact_build_and_fetch_local
 from config import SENDER, MAINNET_NETWORK_ID
+import time
+
+def test_function(file):
+    import bpy
+    time_start = time.time()
+    collection_name = "lol"
+    bpy.ops.object.select_all(action='DESELECT')
+    if collection_name in bpy.data.collections:
+        if bpy.data.collections[collection_name] is not bpy.context.scene.collection:
+            bpy.data.collections.remove(bpy.data.collections[collection_name])
+    # bpy.ops.import_scene.gltf(filepath='C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\kadcar.glb')
+    bpy.ops.import_scene.gltf(filepath='/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/nft_5337.glb')
+    bpy.ops.collection.create(name=collection_name)
+    bpy.ops.object.select_all(action='SELECT')
+    # bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.export_scene.gltf(
+        filepath="/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/{}.glb".format(file),
+        use_selection=True,
+        export_format="GLB",
+        export_apply=True,
+        export_texcoords=True,
+        export_normals=True,
+        export_tangents=True,
+        export_materials='EXPORT',
+        export_colors=True,
+        export_cameras=True,
+        export_animations=False
+        # use_mesh_edges=True,
+        # use_mesh_vertices=True,
+        # export_extras=True
+    )
+    print((time.time() - time_start))
 
 class CombineView(views.APIView):
     def post(self, request):
-        collection_name = "lol"
-        bpy.ops.object.select_all(action='DESELECT')
-        if collection_name in bpy.data.collections:
-            if bpy.data.collections[collection_name] is not bpy.context.scene.collection:
-                bpy.data.collections.remove(bpy.data.collections[collection_name])
-        bpy.ops.import_scene.gltf(filepath='C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\kadcar.glb')
-        bpy.ops.collection.create(name=collection_name)
-        bpy.ops.object.select_all(action='SELECT')
-        bpy.ops.export_scene.gltf(
-            filepath="K:/lol.glb",
-            use_selection=True,
-            export_format="GLB",
-            export_apply=True,
-            export_texcoords=True,
-            export_normals=True,
-            export_tangents=True,
-            export_materials='EXPORT',
-            export_colors=True,
-            export_cameras=True,
-            export_animations=False
-            # use_mesh_edges=True,
-            # use_mesh_vertices=True,
-            # export_extras=True
-        )
+        with Pool(2) as p:
+            p.map(test_function, ["lol1", "lol2"])
         return HttpResponse("okokoko")
         delete_all_objects_in_scene()
         data = request.data

@@ -273,3 +273,9 @@ class ShaderHandler:
 
         for mat in src.data.materials:
             tgt.data.materials.append(mat)
+    
+    def add_uv_map(self, active_object):
+        self.bpy.context.scene.objects.active = active_object
+        self.bpy.ops.mesh.uv_texture_add()
+        self.bpy.ops.object.editmode_toggle()
+        self.bpy.ops.uv.smart_project()

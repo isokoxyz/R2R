@@ -28,8 +28,7 @@ class ObjectHandler:
 
     def apply_transform_to_selected_object(self, target_object, location=True, rotation=True):
         self.select_object_and_make_active(target_object)
-        self.bpy.ops.object.transform_apply(
-            location=location, rotation=rotation)
+        self.bpy.ops.object.transform_apply(location=location, rotation=rotation)
 
     def select_object_and_make_active(self, selected_object):
         selected_object.select_set(True)
@@ -43,8 +42,11 @@ class ObjectHandler:
 
         return selected_object
 
-    def link_selected_objects_in_scene(self, name):
-        self.bpy.ops.object.make_links_data(type=name)
+    def set_object_origin(self, type, center):
+        self.bpy.ops.object.origin_set(type=type, center=center)
+
+    def link_selected_objects_in_scene(self, type):
+        self.bpy.ops.object.make_links_data(type=type)
 
     def make_object_active(self, object):
         self.bpy.context.view_layer.objects.active = object

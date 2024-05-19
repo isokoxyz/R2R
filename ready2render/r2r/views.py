@@ -89,37 +89,54 @@ class CombineView(views.APIView):
         # download glbs
         # dest_nft_glb = download_glb_asset("") #TODO: nft asset
         # attachment_nft_image = download_glb_asset("") #TODO: nft asset
-        dest_nft_glb = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\kadcar.glb'
-        attachment_nft_image = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars/army.png'
+        # dest_nft_glb = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\kadcar.glb'
+        # attachment_nft_image = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars/army.png'
+        uvs = '/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/kadcar_w_uvs.glb'
+        dest_nft_glb = '/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/nft_5337.glb'
+        attachment_nft_image = '/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/hood.png'
 
         # import nft glbs into scene
-        bpy.scene_handler.import_scene_into_collection(
-            dest_nft_glb, "destination")
-
-        # select nft objects
+        bpy.scene_handler.import_scene_into_collection(dest_nft_glb, "destination")
+        bpy.scene_handler.import_scene_into_collection(uvs, "uvs")
+        
+        # cleanup
         bpy.scene_handler.deselect_all_scene_objects()
-        dest_object = bpy.object_handler.select_object_by_name_and_make_active(
-            "Car_Body")
-        bpy.bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
+
+        # select target object
+        dest_object = bpy.object_handler.select_object_by_name_and_make_active("Car_Body")
+        bpy.object_handler.set_object_origin(type='ORIGIN_GEOMETRY', center='MEDIAN')
+
+        # select kadcars with object
+        uvs_object = bpy.object_handler.select_object_by_name_and_make_active("Car_Body.001")
+        bpy.object_handler.set_object_origin(type='ORIGIN_GEOMETRY', center='MEDIAN')
+
+        # link objects
+        bpy.object_handler.link_selected_objects_in_scene(type='OBDATA')
+
+        #Fix the rotation
+        bpy.object_handler.make_object_active(uvs_object)
+        # uvs_object.rotation_quaternion.x = 1.0
+        # bpy.object_handler.apply_transform_to_selected_object(uvs_object, location=True, rotation=True)
+
+        bpy.scene_handler.deselect_all_scene_objects()
+        bpy.scene_handler.delete_objects_from_collection_name('uvs')
 
         # Retrieve bsdf values and node tree
         print("SETTING UP SHADER NODES")
-        bsdf = bpy.shader_handler.get_principled_bsdf_for_active_material(
-            dest_object)
-        base_color = bpy.shader_handler.get_input_value_from_bsdf(
-            bsdf, 'Base Color')
-        node_tree = bpy.shader_handler.get_node_tree_for_selected_object(
-            dest_object)
+        bsdf = bpy.shader_handler.get_principled_bsdf_for_active_material(dest_object)
+        base_color = bpy.shader_handler.get_input_value_from_bsdf(bsdf, 'Base Color')
+        metallic_value = bpy.shader_handler.get_input_value_from_bsdf(bsdf, 'Metallic')
+        node_tree = bpy.shader_handler.get_node_tree_for_selected_object(dest_object)
         nodes = node_tree.nodes
 
         # Create UV map node to specify destination
         uv_node = nodes.new("ShaderNodeUVMap")
+        uv_node.uv_map = "UVMap.002" # TODO: this will be the name of the actual uv which will be in the image metadata
         uv_node.name = "UV_MAP_NODE"
 
         # Create texture shader node for sticker
         texture_node = nodes.new("ShaderNodeTexImage")
-        texture_node.image = bpy.bpy.data.images.load(
-            attachment_nft_image)  # TODO: load image
+        texture_node.image = bpy.bpy.data.images.load(attachment_nft_image)  # TODO: load image
         texture_node.name = "STICKER_NODE"
 
         # Create Mix RGB node to set kadcar color
@@ -129,18 +146,17 @@ class CombineView(views.APIView):
 
         # Link all created nodes to the principled bsdf
         print("CONNECTING ALL SHADER NODES")
-        node_tree.links.new(
-            uv_node.outputs['UV'], texture_node.inputs['Vector'])
-        node_tree.links.new(
-            texture_node.outputs['Color'], mix_node.inputs['Color2'])
-        node_tree.links.new(
-            texture_node.outputs['Alpha'], mix_node.inputs['Fac'])
-        node_tree.links.new(
-            mix_node.outputs['Color'], bsdf.inputs['Base Color'])
+        node_tree.links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
+        node_tree.links.new(texture_node.outputs['Color'], mix_node.inputs['Color2'])
+        node_tree.links.new(texture_node.outputs['Alpha'], mix_node.inputs['Fac'])
+        node_tree.links.new(mix_node.outputs['Color'], bsdf.inputs['Base Color'])
+
+        bpy.shader_handler.set_input_value_in_bsdf(bsdf, 'Metallic', metallic_value)
 
         # Complete scene details and export
         print("EXPORTING NOW")
-        glb_path = 'K:/stickered.glb'  # TODO
+        # glb_path = 'K:/stickered.glb'  # TODO
+        glb_path = '/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/stickered.glb'  # TODO
 
         bpy.scene_handler.export_scene(glb_path, export_all=True, format="GLB")
 

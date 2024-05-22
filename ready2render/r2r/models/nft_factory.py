@@ -15,7 +15,8 @@ def create_nft(bpy_context, data):
             nft_id=data["nft_id"],
             collection_id=data["collection_id"],
             collection_name=data["collection_name"],
-            chain_id=data["chain_id"]
+            chain_id=data["chain_id"],
+            uri=data["uri"]
         )
     elif nft_type == "image":
         nft = Image(
@@ -24,7 +25,9 @@ def create_nft(bpy_context, data):
             nft_id=data["nft_id"],
             collection_id=data["collection_id"],
             collection_name=data["collection_name"],
-            chain_id=data["chain_id"]
+            chain_id=data["chain_id"],
+            uri=data["uri"],
+            uv_map=data["uv_map"]
         )
     else:
         nft = NFT(
@@ -33,7 +36,8 @@ def create_nft(bpy_context, data):
             nft_id=data["nft_id"],
             collection_id=data["collection_id"],
             collection_name=data["collection_name"],
-            chain_id=data["chain_id"]
+            chain_id=data["chain_id"],
+            uri=data["uri"]
         )
 
     return nft

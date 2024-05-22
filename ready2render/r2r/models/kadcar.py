@@ -12,10 +12,11 @@ class Kadcar(NFT):
         nft_id: str,
         collection_id: str,
         collection_name: str,
-        chain_id: str
+        chain_id: str,
+        uri: str
     ):
         super().__init__(bpy_context, token_id, nft_id,
-                         collection_id, collection_name, chain_id)
+            collection_id, collection_name, chain_id, uri)
         self.metadata = self.fetch_nft_metadata()
         self.kadcar_w_uvs = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars/kadcar_w_uvs.glb'
 
@@ -76,8 +77,39 @@ class Kadcar(NFT):
         node_tree = bpy.shader_handler.get_node_tree_for_selected_object(
             kadcar_object)
 
+        # loop over all stickers, create image nft, add shader nodes
         image_nft.add_shader_nodes_for_image_texture(
-            base_color, bsdf, node_tree)
+            base_color, node_tree, bsdf, 'Base Color')
+        
+        tgt_node = bsdf
+        tgt_node_input = "Base Color"
+        
+        if self.metadata["attachments"] is not None:
+            for attachment in self.metadata["attachments"]:
+                attachment_nft = Image(
+                    bpy_context=bpy, 
+                    token_id=attachment["token_id"],
+                    nft_id=attachment["nft_id"],
+                    collection_id=attachment["collection_id"],
+                    collection_name=attachment["collection_name"],
+                    chain_id=attachment["chain_id"],
+                    uri=attachment["uri"],
+                    uv_map=attachment["uv_map"]
+                )
+
+                tgt_node, tgt_node_input = attachment_nft.add_shader_nodes_for_image_texture(
+                    tgt_base_color=base_color,
+                    tgt_node_tree=node_tree,
+                    tgt_node=tgt_node,
+                    tgt_node_input=tgt_node_input
+                )
+
+        tgt_node, tgt_node_input = image_nft.add_shader_nodes_for_image_texture(
+            tgt_base_color=base_color,
+            tgt_node_tree=node_tree,
+            tgt_node=tgt_node,
+            tgt_node_input=tgt_node_input
+        )
 
         self.bpy_context.shader_handler.set_input_value_in_bsdf(
             bsdf, 'Metallic', metallic_value)

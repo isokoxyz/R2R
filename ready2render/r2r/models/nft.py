@@ -14,7 +14,8 @@ class NFT(Asset):
         nft_id: str,
         collection_id: str,
         collection_name: str,
-        chain_id: str
+        chain_id: str,
+        uri: str
     ):
         super().__init__(bpy_context)
         self.token_id = token_id
@@ -22,6 +23,7 @@ class NFT(Asset):
         self.collection_id = collection_id
         self.collection_name = collection_name
         self.chain_id = chain_id
+        self.uri = uri
 
     def fetch_nft_metadata(self, uri):
         nft_metadata = None

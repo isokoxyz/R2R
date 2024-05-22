@@ -66,9 +66,17 @@ class CombineView(views.APIView):
 
         # render nft
         bpy.render_handler.render_scene(
-            render_output_path="", output_format="", render_res_x=0, render_res_y=0, write_still=True)
+            render_output_path="", 
+            output_format="", 
+            render_res_x=0, 
+            render_res_y=0, 
+            write_still=True
+        )
 
-        # upload to ipfs and digital ocean
+        # upload to ipfs
+
+        # upload to digital ocean
+        digital_ocean.upload_to_spaces()
 
         # download glbs
         # dest_nft_glb = download_glb_asset("") #TODO: nft asset

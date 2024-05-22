@@ -1,11 +1,13 @@
 from django.http import HttpResponse
 from rest_framework import views
 from multiprocessing import Pool
+import time
+
+from r2r.models.nft_factory import create_nft
 from r2r.models.nft import NFT
 from r2r.utils.io_utils import *
-# from kad_py.main.kad_py_public import pact_build_and_fetch_local
-import time
 from r2r.bpy_handlers.BpyContext import BpyContext
+from r2r.models.digital_ocean import DigitalOcean
 
 
 def test_function(file):
@@ -47,36 +49,26 @@ def test_function(file):
 
 class CombineView(views.APIView):
     def post(self, request):
-        # with Pool(2) as p:
-        #     p.map(test_function, ["lol1", "lol2"])
-
-        bpy = BpyContext()
-        bpy.scene_handler.delete_all_objects_in_scene()
-
         data = request.data
-        destination_nft = NFT(
-            token_id=data["dest_token_id"],
-            nft_id=data["dest_nft_id"],
-            collection_id=data["dest_collection_id"],
-            collection_name=data["dest_collection_name"],
-            chain_id=data["chain_id"]
-        )
 
-        # get nft manifests from blockchain
-        # print("FETCHING NFT DATA")
-        # dest_nft_metadata = pact_build_and_fetch_local(
-        #     sender=SENDER,
-        #     pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(data["dest_nft_id"]),
-        #     network_id=MAINNET_NETWORK_ID,
-        #     chain_id=destination_nft.chain_id
-        # )
+        # initialize bpy and digital ocean contexts
+        bpy = BpyContext()
+        digital_ocean = DigitalOcean()
 
-        # attachment_nft_metadata = pact_build_and_fetch_local(
-        #     sender=SENDER,
-        #     pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(attachment_nft_id),
-        #     network_id=MAINNET_NETWORK_ID,
-        #     chain_id=chain_id
-        # )
+        # initialize nfts
+        target_nft = create_nft(bpy_context=bpy, data=data["target_nft"])
+        attachment_nft = create_nft(
+            bpy_context=bpy, data=data["attachment_nft"])
+
+        # attach nft and export
+        target_nft.attach_image_texture(attachment_nft)
+        target_nft.export_nft(file_path="", format="GLB")
+
+        # render nft
+        bpy.render_handler.render_scene(
+            render_output_path="", output_format="", render_res_x=0, render_res_y=0, write_still=True)
+
+        # upload to ipfs and digital ocean
 
         # download glbs
         # dest_nft_glb = download_glb_asset("") #TODO: nft asset

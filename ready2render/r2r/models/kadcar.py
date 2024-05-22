@@ -82,8 +82,6 @@ class Kadcar(NFT):
         self.bpy_context.shader_handler.set_input_value_in_bsdf(
             bsdf, 'Metallic', metallic_value)
 
-        self.export_nft(file_path='K:/stickered.glb', format='GLB')
-
     def get_kadcar_image_uri(self):
         return self.metadata["uri"]["data"]
 

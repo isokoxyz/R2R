@@ -15,7 +15,7 @@ class Image(NFT):
         uv_map: str
     ):
         super().__init__(bpy_context, token_id, nft_id,
-            collection_id, collection_name, chain_id, uri)
+                         collection_id, collection_name, chain_id, uri)
         self.metadata = self.fetch_nft_metadata()
         self.uv_map = uv_map
 
@@ -52,9 +52,20 @@ class Image(NFT):
             texture_node.outputs['Alpha'], mix_node.inputs['Fac'])
         tgt_node_tree.links.new(
             mix_node.outputs['Color'], tgt_node.inputs[tgt_node_input])
-            # mix_node.outputs['Color'], tgt_node.inputs['Base Color'])
-        
+        # mix_node.outputs['Color'], tgt_node.inputs['Base Color'])
+
         return mix_node, 'Color1'
 
     def get_image_uri(self):
         pass
+
+    def get_image_data(self):
+        return {
+            "token_id": self.token_id,
+            "nft_id": self.nft_id,
+            "collection_id": self.collection_id,
+            "collection_name": self.collection_name,
+            "chain_id": self.chain_id,
+            "uri": self.uri,
+            "uv_map": self.uv_map
+        }

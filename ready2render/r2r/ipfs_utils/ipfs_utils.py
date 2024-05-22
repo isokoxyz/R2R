@@ -49,7 +49,7 @@ def upload_asset_to_ipfs(asset_file, format):
         #     response = requests.post(IPFS_URL_PREFIX + 'upload/', headers=headers, files={asset_file: f})
 
         response = requests.post(url=IPFS_URL_PREFIX + "upload/",
-                                 data=open(asset_file, 'rb'), headers=get_headers(format))
+            data=open(asset_file, 'rb'), headers=get_headers(format))
         print(response.json())
         if response.ok == True:
             cid = response.json()["value"]["cid"]
@@ -72,8 +72,7 @@ def pack_and_split_CAR_file(asset_path, output_path):
     # cid["value"] = re.match(r"b'root\sCID:\s(.+?)\\n.*", str(command_output.stdout)).groups()[0]
 
     # split CAR file
-    os.system("carbites split " + out_path +
-              " --size 100MB --strategy treewalk")
+    os.system("carbites split " + out_path + " --size 100MB --strategy treewalk")
 
 
 def pin_asset_using_cid(cid):

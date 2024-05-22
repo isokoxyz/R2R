@@ -57,26 +57,28 @@ class CombineView(views.APIView):
 
         # initialize nfts
         target_nft = create_nft(bpy_context=bpy, data=data["target_nft"])
-        attachment_nft = create_nft(
-            bpy_context=bpy, data=data["attachment_nft"])
+        attachment_nft = create_nft(bpy_context=bpy, data=data["attachment_nft"])
 
         # attach nft and export
-        target_nft.attach_image_texture(attachment_nft)
+        updated_tgt_metadata = target_nft.attach_image_texture(attachment_nft)
         target_nft.export_nft(file_path="", format="GLB")
 
         # render nft
         bpy.render_handler.render_scene(
-            render_output_path="", 
-            output_format="", 
-            render_res_x=0, 
-            render_res_y=0, 
+            render_output_path="",
+            output_format="",
+            render_res_x=0,
+            render_res_y=0,
             write_still=True
         )
 
-        # upload to ipfs
+        # upload to ipfs and update metadata
 
         # upload to digital ocean
-        digital_ocean.upload_to_spaces()
+        digital_ocean.upload_to_spaces(target_nft.collection_name, updated_tgt_metadata)
+
+
+
 
         # download glbs
         # dest_nft_glb = download_glb_asset("") #TODO: nft asset

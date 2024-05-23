@@ -8,6 +8,7 @@ from r2r.models.nft import NFT
 from r2r.utils.io_utils import *
 from r2r.bpy_handlers.BpyContext import BpyContext
 from r2r.models.digital_ocean import DigitalOcean
+from r2r.ipfs_utils.ipfs_utils import upload_asset_to_ipfs
 
 
 def test_function(file):
@@ -60,7 +61,7 @@ class CombineView(views.APIView):
         attachment_nft = create_nft(bpy_context=bpy, data=data["attachment_nft"])
 
         # attach nft and export
-        updated_tgt_metadata = target_nft.attach_image_texture(attachment_nft)
+        target_nft.attach_image_texture(attachment_nft)
         target_nft.export_nft(file_path="", format="GLB")
 
         # render nft
@@ -73,6 +74,7 @@ class CombineView(views.APIView):
         )
 
         # upload to ipfs and update metadata
+        updated_tgt_metadata = target_nft.upload_nft_to_ipfs()
 
         # upload to digital ocean
         digital_ocean.upload_to_spaces(target_nft.collection_name, updated_tgt_metadata)

@@ -25,15 +25,13 @@ def get_asset_from_ipfs(cid):
 
 
 def upload_nft_files_to_ipfs(nft_asset_path, render_asset_path):
-    destination = nft_asset_path.split(
-        '/')[len(nft_asset_path.split('/')) - 1] + ".car"
+    destination = nft_asset_path.split('/')[len(nft_asset_path.split('/')) - 1] + ".car"
 
     car_file_dest_directory = 'K:/car_file/'
     car_file_dest_file = os.path.join(car_file_dest_directory, destination)
 
     pack_and_split_CAR_file(nft_asset_path, car_file_dest_file)
-    glb_cid = iterate_over_car_files_and_upload(
-        car_file_dest_directory, car_file_dest_file)
+    glb_cid = iterate_over_car_files_and_upload(car_file_dest_directory, car_file_dest_file)
     glb_url = "ipfs://" + glb_cid
 
     webp_cid = upload_asset_to_ipfs(render_asset_path, 'image/*')

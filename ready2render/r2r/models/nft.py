@@ -49,6 +49,9 @@ class NFT(Asset):
 
         return nft_metadata
 
+    def upload_nft_to_ipfs(self):
+        pass
+
     def attach_image_nft(self):
         pass
 

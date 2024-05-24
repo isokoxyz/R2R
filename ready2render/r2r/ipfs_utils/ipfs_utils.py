@@ -4,7 +4,7 @@ import json
 import requests
 import subprocess
 from r2r.utils.io_utils import *
-from config import IPFS_BEARER_TOKEN
+from config import IPFS_BEARER_TOKEN, IPFS_CAR_FILES_PATH
 
 IPFS_URL_PREFIX = "https://api.nft.storage/"
 DEFAULT_IPFS_GATEWAY = "ipfs.io"
@@ -27,7 +27,8 @@ def get_asset_from_ipfs(cid):
 def upload_nft_files_to_ipfs(nft_asset_path, render_asset_path):
     destination = nft_asset_path.split('/')[len(nft_asset_path.split('/')) - 1] + ".car"
 
-    car_file_dest_directory = 'K:/car_file/'
+    # car_file_dest_directory = 'K:/car_file/'
+    car_file_dest_directory = IPFS_CAR_FILES_PATH
     car_file_dest_file = os.path.join(car_file_dest_directory, destination)
 
     pack_and_split_CAR_file(nft_asset_path, car_file_dest_file)

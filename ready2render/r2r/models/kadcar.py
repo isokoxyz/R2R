@@ -1,9 +1,9 @@
+from config import MODELS_WITH_UV_MAPS_PATH
 from r2r.models.nft import NFT
 from r2r.models.image import Image
 from r2r.ipfs_utils.ipfs_utils import download_glb_asset
 from r2r.bpy_handlers.BpyContext import BpyContext
 from r2r.ipfs_utils.ipfs_utils import upload_nft_files_to_ipfs
-
 class Kadcar(NFT):
     def __init__(
         self,
@@ -17,7 +17,8 @@ class Kadcar(NFT):
     ):
         super().__init__(bpy_context, token_id, nft_id, collection_id, collection_name, chain_id, uri)
         self.metadata = self.fetch_nft_metadata()
-        self.kadcar_w_uvs = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars/kadcar_w_uvs.glb'
+        # self.kadcar_w_uvs = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars/kadcar_w_uvs.glb'
+        self.kadcar_w_uvs = MODELS_WITH_UV_MAPS_PATH
 
     def fetch_nft_metadata(self):
         kadcar_nft_data = super().fetch_nft_data_from_blockchain()

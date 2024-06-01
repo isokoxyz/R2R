@@ -1,33 +1,31 @@
 import bpy
+import subprocess
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from models.digital_ocean import DigitalOcean
 
 
-dest_nft_glb = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\kadcar.glb'
-collection_name = "lol"
+# dest_nft_glb = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\kadcar.glb'
+# collection_name = "lol"
 
-bpy.ops.object.select_all(action='DESELECT')
-if collection_name in bpy.data.collections:
-    if bpy.data.collections[collection_name] is not bpy.context.scene.collection:
-        bpy.data.collections.remove(bpy.data.collections[collection_name])
-bpy.ops.import_scene.gltf(filepath=dest_nft_glb)
-bpy.ops.collection.create(name=collection_name)
+# digital_ocean = DigitalOcean()
+# nft_metadata = requests.get("https://kadcars-manifests.nyc3.digitaloceanspaces.com/1.json").json()
+# nft_metadata["haha"] = "lol"
+# digital_ocean.upload_to_spaces("kadcars", json.dumps(nft_metadata), "1.json", "public")
 
-bpy.ops.object.select_all(action='SELECT')
+# ipfs_car_command = "ipfs-car --pack K:/UpgradeTest/exports/kadcara.glb --output K:/UpgradeTest/car_files/kadcar.glb.car"
+# ipfs_car_command = "ipfs-car --pack " + os.path.dirname(__file__) + "/kadcar.glb --output kadcar.glb.car"
+ipfs_car_command = "\"C:/Program Files/nodejs/ipfs-car.cmd\" --pack " + os.path.dirname(__file__) + "/kadcar.glb --output kadcar.glb.car"
+# ipfs_car_command = ["ipfs-car", "--pack", os.path.dirname(__file__) + "kadcar.glb", "--output", os.path.dirname(__file__) + "kadcar.glb.car"]
 
-print(bpy.context.active_object)
-exit()
-bpy.ops.export_scene.gltf(
-    filepath="K:/lol.glb",
-    use_selection=True,
-    export_format="GLB",
-    export_apply=True,
-    export_texcoords=True,
-    export_normals=True,
-    export_tangents=True,
-    export_materials='EXPORT',
-    export_colors=True,
-    export_cameras=True,
-    export_animations=False
-    # use_mesh_edges=True,
-    # use_mesh_vertices=True,
-    # export_extras=True
-)
+# pack CAR file, capture CID
+ipfs_car_command_output = subprocess.run(ipfs_car_command, shell=True, capture_output=True)
+print(ipfs_car_command_output)
+# cid["value"] = re.match(r"b'root\sCID:\s(.+?)\\n.*", str(command_output.stdout)).groups()[0]
+
+# split CAR file
+# os.system("carbites split " + out_path + " --size 100MB --strategy treewalk")
+# carbites_command = "carbites split K:\\UpgradeTest/car_files\\kadcara.glb.car --size 100MB --strategy treewalk"
+# carbites_command_output = subprocess.Popen(carbites_command, shell=True, capture_output=True)
+# print(carbites_command_output)

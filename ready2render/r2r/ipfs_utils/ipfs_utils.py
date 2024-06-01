@@ -19,36 +19,38 @@ def get_headers(content_type):
 
 
 def get_asset_from_ipfs(cid):
-    response = requests.get(str(
-        "https://api.nft.storage/bafybeihtn6sk44pxizjedv7u2nqdq3ncijwmcdxgin3tcnnqh55hckvpfm"), headers=get_headers("application/json"))
+    response = requests.get(str("https://api.nft.storage/{}".format(cid)), headers=get_headers("application/json"))
     print(response.json())
 
 
 def upload_nft_files_to_ipfs(nft_asset_path, render_asset_path):
     destination = nft_asset_path.split('/')[len(nft_asset_path.split('/')) - 1] + ".car"
 
-    # car_file_dest_directory = 'K:/car_file/'
     car_file_dest_directory = IPFS_CAR_FILES_PATH
     car_file_dest_file = os.path.join(car_file_dest_directory, destination)
 
     pack_and_split_CAR_file(nft_asset_path, car_file_dest_file)
     glb_cid = iterate_over_car_files_and_upload(car_file_dest_directory, car_file_dest_file)
     glb_url = "ipfs://" + glb_cid
+    print("GLB")
+    print(glb_url)
 
-    webp_cid = upload_asset_to_ipfs(render_asset_path, 'image/*')
-    webp_url = "ipfs://" + webp_cid
+    # webp_cid = upload_asset_to_ipfs(render_asset_path, 'image/*')
+    # webp_url = "ipfs://" + webp_cid
 
-    return glb_url, webp_url
+    # return glb_url, webp_url
+    return glb_url
 
 
 def upload_asset_to_ipfs(asset_file, format):
     response = None
     try:
-        # with open(asset_file, 'rb') as f:
-        #     response = requests.post(IPFS_URL_PREFIX + 'upload/', headers=headers, files={asset_file: f})
-
-        response = requests.post(url=IPFS_URL_PREFIX + "upload/",
-            data=open(asset_file, 'rb'), headers=get_headers(format))
+        response = requests.post(
+            url=IPFS_URL_PREFIX + "upload/", 
+            data=open(asset_file, 'rb'), 
+            headers=get_headers(format)
+        )
+        print("Uploaded")
         print(response.json())
         if response.ok == True:
             cid = response.json()["value"]["cid"]
@@ -62,16 +64,20 @@ def upload_asset_to_ipfs(asset_file, format):
 def pack_and_split_CAR_file(asset_path, output_path):
     in_path = '"{fname}"'.format(fname=asset_path)
     out_path = '"{fname}"'.format(fname=output_path)
-    command = "ipfs-car --pack " + str(in_path) + " --output " + str(out_path)
-
-    cid = {"name": "cid"}
+    print(in_path)
+    print(out_path)
+    ipfs_car_command = "ipfs-car --pack " + str(in_path) + " --output " + str(out_path)
+    carbites_command = "carbites split " + str(out_path) + " --size 100MB --strategy treewalk"
 
     # pack CAR file, capture CID
-    command_output = subprocess.run(command, shell=True, capture_output=True)
+    ipfs_car_command_output = subprocess.run(ipfs_car_command, shell=True, capture_output=True)
+    print(ipfs_car_command_output)
     # cid["value"] = re.match(r"b'root\sCID:\s(.+?)\\n.*", str(command_output.stdout)).groups()[0]
 
     # split CAR file
-    os.system("carbites split " + out_path + " --size 100MB --strategy treewalk")
+    # os.system("carbites split " + out_path + " --size 100MB --strategy treewalk")
+    carbites_command_output = subprocess.run(carbites_command, shell=True, capture_output=True)
+    print(carbites_command_output)
 
 
 def pin_asset_using_cid(cid):
@@ -84,6 +90,8 @@ def pin_asset_using_cid(cid):
 
 def iterate_over_car_files_and_upload(car_file_dest_directory, car_file_output_path):
     glb_cid = ""
+    print("car files")
+    print(os.listdir(car_file_dest_directory))
     for car_file in os.listdir(car_file_dest_directory):
         car_file_path = os.path.join(car_file_dest_directory, car_file)
 
@@ -91,8 +99,7 @@ def iterate_over_car_files_and_upload(car_file_dest_directory, car_file_output_p
             print("AVOIDED " + car_file_path + "\n")
             continue
 
-        glb_cid = upload_asset_to_ipfs(
-            car_file_path, 'application/car')
+        glb_cid = upload_asset_to_ipfs(car_file_path, 'application/car')
         print(car_file_path + "   CID: " + glb_cid + "\n")
 
     return glb_cid
@@ -104,14 +111,11 @@ def download_glb_asset(glb_ipfs_dir_cid):
     asset_file_path = None
 
     try:
-        response = requests.get(
-            "https://" + DEFAULT_IPFS_GATEWAY + "/api/v0/ls?arg=" + glb_ipfs_dir_cid)
+        response = requests.get("https://" + DEFAULT_IPFS_GATEWAY + "/api/v0/ls?arg=" + glb_ipfs_dir_cid)
 
         if response.status_code == 200:
-            glb_ipfs_asset_cid = response.json(
-            )["Objects"][0]["Links"][0]["Hash"]
-            glb_ipfs_asset_file_name = response.json(
-            )["Objects"][0]["Links"][0]["Name"]
+            glb_ipfs_asset_cid = response.json()["Objects"][0]["Links"][0]["Hash"]
+            glb_ipfs_asset_file_name = response.json()["Objects"][0]["Links"][0]["Name"]
 
             print("https://" + glb_ipfs_dir_cid + ".ipfs.nftstorage.link/ipfs/" +
                   glb_ipfs_asset_cid + "?filename=" + glb_ipfs_asset_file_name)
@@ -129,8 +133,6 @@ def download_glb_asset(glb_ipfs_dir_cid):
         print("Failed to retrieve GLB ipfs directory data")
 
     return asset_file_path
-
-# TODO: make output file path more dynamic; firebase?
 
 
 def download_webp_asset(manifest):

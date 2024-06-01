@@ -1,14 +1,13 @@
 from r2r.models.kadcar import Kadcar
 from r2r.models.image import Image
 from r2r.models.nft import NFT
-from r2r.bpy_handlers.BpyContext import BpyContext
 
 
 def create_nft(bpy_context, data):
     nft = None
     nft_type = data["nft_type"]
 
-    if nft_type == "kadcars":
+    if nft_type == "kadcar":
         nft = Kadcar(
             bpy_context=bpy_context,
             token_id=data["token_id"],
@@ -16,7 +15,7 @@ def create_nft(bpy_context, data):
             collection_id=data["collection_id"],
             collection_name=data["collection_name"],
             chain_id=data["chain_id"],
-            uri=data["uri"]
+            uri=data["nft_uri"]
         )
     elif nft_type == "image":
         nft = Image(
@@ -26,7 +25,7 @@ def create_nft(bpy_context, data):
             collection_id=data["collection_id"],
             collection_name=data["collection_name"],
             chain_id=data["chain_id"],
-            uri=data["uri"],
+            uri=data["nft_uri"],
             uv_map=data["uv_map"]
         )
     else:
@@ -37,7 +36,7 @@ def create_nft(bpy_context, data):
             collection_id=data["collection_id"],
             collection_name=data["collection_name"],
             chain_id=data["chain_id"],
-            uri=data["uri"]
+            uri=data["nft_uri"]
         )
 
     return nft

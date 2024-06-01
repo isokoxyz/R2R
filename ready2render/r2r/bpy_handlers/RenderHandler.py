@@ -1,10 +1,8 @@
-from r2r.bpy_handlers.BpyContext import BpyContext
-
 
 class RenderHandler:
     def __init__(
         self,
-        bpy: BpyContext,
+        bpy,
         engine: str = 'CYCLES',
         device_type: str = 'CUDA',
         device: str = 'GPU',

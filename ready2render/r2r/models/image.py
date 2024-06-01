@@ -14,8 +14,7 @@ class Image(NFT):
         uri: str,
         uv_map: str
     ):
-        super().__init__(bpy_context, token_id, nft_id,
-                         collection_id, collection_name, chain_id, uri)
+        super().__init__(bpy_context, token_id, nft_id, collection_id, collection_name, chain_id, uri)
         self.metadata = self.fetch_nft_metadata()
         self.uv_map = uv_map
 
@@ -33,8 +32,7 @@ class Image(NFT):
 
         # Create texture shader node for sticker
         texture_node = nodes.new("ShaderNodeTexImage")
-        texture_node.image = self.bpy_context.bpy.data.images.load(
-            self.get_image_uri())  # TODO: load image
+        texture_node.image = self.bpy_context.bpy.data.images.load(self.get_image_uri())  # TODO: load image
         texture_node.name = "STICKER_NODE_{}".format(self.nft_id)
 
         # Create Mix RGB node to set kadcar color
@@ -57,7 +55,7 @@ class Image(NFT):
         return mix_node, 'Color1'
 
     def get_image_uri(self):
-        pass
+        return "C:/Users/Mohannad Ahmad/Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\hood.png"
 
     def get_image_data(self):
         return {

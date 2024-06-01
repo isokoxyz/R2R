@@ -1,5 +1,5 @@
 import requests
-from config import SENDER, MAINNET_NETWORK_ID
+from config import SENDER, MAINNET_NETWORK_ID, RENDER_OUTPUT_PATH, BLENDER_EXPORT_PATH
 
 from r2r.bpy_handlers.BpyContext import BpyContext
 from r2r.models.asset import Asset
@@ -39,15 +39,14 @@ class NFT(Asset):
         try:
             nft_metadata = pact_build_and_fetch_local(
                 sender=SENDER,
-                pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(self.nft_id),
+                pact_code='(marmalade-v2.ledger.get-token-info "{}")'.format(self.token_id),
                 network_id=MAINNET_NETWORK_ID,
                 chain_id=self.chain_id
             )
+            return nft_metadata
         except Exception as e:
             print("Error fetching data from blockchain")
             return e
-
-        return nft_metadata
 
     def upload_nft_to_ipfs(self):
         pass
@@ -57,5 +56,8 @@ class NFT(Asset):
 
     def export_nft(self, file_path, format="GLB"):
         print("EXPORTING NOW")
-        self.bpy_context.scene_handler.export_scene(
-            file_path, export_all=True, format=format)
+        self.bpy_context.scene_handler.export_scene(file_path, export_all=True, format=format)
+
+    def get_nft_export_file_path(self):
+        return '{}/{}_{}'.format(BLENDER_EXPORT_PATH, str(self.collection_name), str(self.nft_id))
+    

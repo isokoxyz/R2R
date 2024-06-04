@@ -1,7 +1,7 @@
 from config import MODELS_WITH_UV_MAPS_PATH, BLENDER_EXPORT_PATH, RENDER_OUTPUT_PATH
 from r2r.models.nft import NFT
 from r2r.models.image import Image
-from r2r.ipfs_utils.ipfs_utils import download_glb_asset
+from r2r.ipfs_utils.ipfs_utils import download_asset_from_ipfs
 from r2r.bpy_handlers.BpyContext import BpyContext
 from r2r.ipfs_utils.ipfs_utils import upload_nft_files_to_ipfs
 class Kadcar(NFT):
@@ -19,7 +19,6 @@ class Kadcar(NFT):
         self.metadata = self.fetch_nft_metadata()
         self.kadcar_w_uvs = MODELS_WITH_UV_MAPS_PATH
         self.s3_metadata_acl = "public"
-        # self.kadcar_w_uvs = 'C:/Users/Mohannad Ahmad\Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars/kadcar_w_uvs.glb'
 
     def fetch_nft_metadata(self):
         kadcar_nft_data = super().fetch_nft_data_from_blockchain()
@@ -31,7 +30,7 @@ class Kadcar(NFT):
         bpy = self.bpy_context
 
         # import nft glbs into scene
-        kadcar_glb = download_glb_asset(self.get_kadcar_model_cid())
+        kadcar_glb = download_asset_from_ipfs(self)
         bpy.scene_handler.import_scene_into_collection(kadcar_glb, "kadcar")
         bpy.scene_handler.import_scene_into_collection(self.kadcar_w_uvs, "kadcar_w_uvs")
 
@@ -81,7 +80,7 @@ class Kadcar(NFT):
         bpy = self.bpy_context
 
         # import nft glbs into scene
-        kadcar_glb = download_glb_asset(self.get_kadcar_model_uri())
+        kadcar_glb = download_asset_from_ipfs(self)
         bpy.scene_handler.import_scene_into_collection(kadcar_glb, "kadcar")
 
         # deselect everything
@@ -158,5 +157,11 @@ class Kadcar(NFT):
     def get_kadcar_model_uri(self):
         return self.metadata["data"][2]["datum"]["art-asset"]["data"]
 
+    def get_kadcar_vin(self):
+        return self.metadata["data"]["1"]["datun"]["vehicle-information"]["vin"]
+
     def get_kadcar_model_cid(self):
         return self.get_kadcar_model_uri().split("://")[1]
+    
+    def get_asset_ipfs_cid(self):
+        return self.get_kadcar_model_uri().split("://")[1] + "/nft_" + str(int(self.get_kadcar_vin()) - 1) + ".glb"

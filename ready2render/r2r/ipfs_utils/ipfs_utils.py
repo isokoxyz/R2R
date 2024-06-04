@@ -1,8 +1,11 @@
+import http.client
 import os
 import re
 import json
+import http
 import requests
 import subprocess
+from r2r.models.nft import NFT
 from r2r.utils.io_utils import *
 from config import IPFS_BEARER_TOKEN, IPFS_CAR_FILES_PATH
 
@@ -153,6 +156,21 @@ def download_webp_asset(manifest):
 
     return asset_file_path
 
+def download_asset_from_ipfs(nft: NFT):
+    client = http.client.HTTPConnection(DEFAULT_IPFS_GATEWAY)
+
+    try:
+        cid = str(nft.get_asset_ipfs_cid())
+        client.request("GET", "/ipfs/{}".format(cid.split("/")[0]))
+        response = client.getresponse()
+
+        if response.status == 200:
+            data = response.read()
+
+            with open(cid, "wb") as file:
+                file.write(data)
+    except:
+        print("Error downloading asset from IPFS")
 
 def add_ipfs_data_to_kc_metadata(asset_file_name, ipfs_url, destination):
     kadcar_metadata = extract_data_from_json(asset_file_name)

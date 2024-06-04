@@ -24,6 +24,7 @@ class NFT(Asset):
         self.collection_name = collection_name
         self.chain_id = chain_id
         self.uri = uri
+        self.metadata = None
 
     def fetch_nft_metadata(self, uri):
         nft_metadata = None
@@ -43,6 +44,9 @@ class NFT(Asset):
                 network_id=MAINNET_NETWORK_ID,
                 chain_id=self.chain_id
             )
+
+            self.metadata = nft_metadata
+
             return nft_metadata
         except Exception as e:
             print("Error fetching data from blockchain")
@@ -61,3 +65,5 @@ class NFT(Asset):
     def get_nft_export_file_path(self):
         return '{}/{}_{}'.format(BLENDER_EXPORT_PATH, str(self.collection_name), str(self.nft_id))
     
+    def get_asset_ipfs_cid(self):
+        pass

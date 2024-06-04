@@ -13,22 +13,22 @@ glb_ipfs_dir_cid = "bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke"
 glb_ipfs_asset_file_name = ""
 glb_ipfs_asset_cid = ""
 asset_file_path = None
+for attempt in range(10):
+    client = http.client.HTTPSConnection("ipfs.io")
+    client.request("GET", "/ipfs/bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke/nft_0.glb")
+    # client.request("GET", "/ipfs/bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke")
+    response = client.getresponse()
+    # Check if the request was successful
+    if response.status == 200:
+        # Read the data from the response
+        data = response.read()
+        print(data)
 
-client = http.client.HTTPSConnection("ipfs.io")
-# client.request("GET", "/ipfs/bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke/nft_0.glb")
-client.request("GET", "/ipfs/bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke")
-response = client.getresponse()
-# Check if the request was successful
-if response.status == 200:
-    # Read the data from the response
-    data = response.read()
-    print(data)
-
-    # Write the data to a file
-    # with open("lol.glb", 'wb') as file:
-    #     file.write(data)
-else:
-    print("fuck you")
+        # Write the data to a file
+        # with open("lol.glb", 'wb') as file:
+        #     file.write(data)
+    else:
+        print("fuck you")
 
 # with requests.get("https://ipfs.io/ipfs/bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke/nft_0.glb", timeout=None, stream=True, verify=False) as r:
 #     r.raise_for_status()

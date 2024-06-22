@@ -1,6 +1,8 @@
+import os
 import requests
-from config import SENDER, MAINNET_NETWORK_ID, RENDER_OUTPUT_PATH, BLENDER_EXPORT_PATH
+from config import SENDER, MAINNET_NETWORK_ID, RENDER_OUTPUT_PATH, BLENDER_EXPORT_PATH, IPFS_DOWNLOAD_PATH
 
+from r2r.ipfs_utils.ipfs_utils import upload_nft_files_to_ipfs
 from r2r.bpy_handlers.BpyContext import BpyContext
 from r2r.models.asset import Asset
 from kad_py.main.kad_py_public import pact_build_and_fetch_local
@@ -62,8 +64,41 @@ class NFT(Asset):
         print("EXPORTING NOW")
         self.bpy_context.scene_handler.export_scene(file_path, export_all=True, format=format)
 
-    def get_nft_export_file_path(self):
-        return '{}/{}_{}'.format(BLENDER_EXPORT_PATH, str(self.collection_name), str(self.nft_id))
+    def get_asset_render_format(self):
+        pass
+
+    def get_asset_render_aspect_ratio(self):
+        pass
+
+    # Path getters
+    def get_nft_export_file_path(self, dir_name):
+        return '{}/{}/{}_{}'.format(BLENDER_EXPORT_PATH, dir_name, str(self.collection_name), str(self.nft_id))
     
     def get_asset_ipfs_cid(self):
         pass
+
+    def get_asset_ipfs_file_name(self):
+        pass
+
+    def get_asset_glb_path(self):
+        pass
+    
+    def get_asset_render_path(self):
+        pass
+
+    def get_asset_ipfs_download_dir_name(self, dir_name=""):
+        self.make_directory(f"{IPFS_DOWNLOAD_PATH}/{dir_name}")
+        return dir_name
+    
+    def get_asset_export_dir_name(self, dir_name=""):
+        self.make_directory(f"{BLENDER_EXPORT_PATH}/{dir_name}")
+        return dir_name
+
+    def get_asset_render_dir_name(self, dir_name=""):
+        self.make_directory(f"{RENDER_OUTPUT_PATH}/{dir_name}")
+        return dir_name
+    
+    def make_directory(self, dir_full_path):
+        if not os.path.isdir(dir_full_path):
+            os.mkdir(dir_full_path)
+    

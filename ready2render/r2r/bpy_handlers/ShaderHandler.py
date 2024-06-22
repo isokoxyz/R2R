@@ -26,7 +26,7 @@ class ShaderHandler:
         node_output = tree_nodes.new(type='ShaderNodeOutputWorld')
         node_output.location = 200, 0
 
-        if type == 'mountain':
+        if type == 'Crystal Caves':
             mapping_node = tree_nodes.new('ShaderNodeMapping')
             tex_coord_node = tree_nodes.new('ShaderNodeTexCoord')
 
@@ -57,7 +57,7 @@ class ShaderHandler:
             links.new(
                 node_background.outputs["Background"], node_output.inputs["Surface"])
 
-        elif type == 'storage':
+        elif type == 'Digital Den':
             mapping_node = tree_nodes.new('ShaderNodeMapping')
             tex_coord_node = tree_nodes.new('ShaderNodeTexCoord')
 
@@ -87,7 +87,7 @@ class ShaderHandler:
             links.new(
                 node_background.outputs["Background"], node_output.inputs["Surface"])
 
-        elif type == 'snow':
+        elif type == 'K:2 Summit':
             node_background.inputs['Strength'].default_value = 1.5
 
             sky_texture = tree_nodes.new('ShaderNodeTexSky')
@@ -120,7 +120,7 @@ class ShaderHandler:
             links.new(
                 node_background.outputs["Background"], node_output.inputs["Surface"])
 
-        elif type == 'beach':
+        elif type == 'Kadena Beach':
             mapping_node = tree_nodes.new('ShaderNodeMapping')
             tex_coord_node = tree_nodes.new('ShaderNodeTexCoord')
 
@@ -148,7 +148,7 @@ class ShaderHandler:
             links.new(
                 node_background.outputs["Background"], node_output.inputs["Surface"])
 
-        elif type == 'cyber':
+        elif type == 'Victory Wing':
             node_background.inputs['Strength'].default_value = 3.0
 
             sky_texture = tree_nodes.new('ShaderNodeTexSky')

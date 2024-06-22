@@ -5,6 +5,10 @@ import requests
 import sys
 import os
 import http
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+from pygltflib import GLTF2
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
@@ -13,55 +17,27 @@ glb_ipfs_dir_cid = "bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke"
 glb_ipfs_asset_file_name = ""
 glb_ipfs_asset_cid = ""
 asset_file_path = None
-for attempt in range(10):
-    client = http.client.HTTPSConnection("ipfs.io")
-    client.request("GET", "/ipfs/bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke/nft_0.glb")
-    # client.request("GET", "/ipfs/bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke")
-    response = client.getresponse()
-    # Check if the request was successful
-    if response.status == 200:
-        # Read the data from the response
-        data = response.read()
-        print(data)
 
-        # Write the data to a file
-        # with open("lol.glb", 'wb') as file:
-        #     file.write(data)
-    else:
-        print("fuck you")
+def download_glb_from_ipfs(ipfs_hash, glb_filename):
+    url = f"https://bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke.ipfs.nftstorage.link/nft_0.glb"
+    print(url)
+    try:
+        with requests.get(url, stream=True) as response:
+            response.raise_for_status()
+            with open(glb_filename, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        file.write(chunk)
+        print(f"GLB file downloaded successfully and saved as {glb_filename}")
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
 
-# with requests.get("https://ipfs.io/ipfs/bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke/nft_0.glb", timeout=None, stream=True, verify=False) as r:
-#     r.raise_for_status()
-#     with open("./lol1.glb", 'wb') as f:
-#         for chunk in r.iter_content(chunk_size=None): 
-#             # If you have chunk encoded response uncomment if
-#             # and set chunk_size parameter to None.
-#             if chunk: 
-#                 f.write(chunk)
+# Replace with your IPFS directory hash and GLB filename
+ipfs_directory_hash = "bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke"
+glb_filename = "nft_0.glb"
 
-# session = requests.Session()
-# with session.get("https://bafybeidyebmqeg6ibtpmww5hqjk7a5exddyqzxt4c6obaxm43hbz36kjke.ipfs.nftstorage.link/nft_0.glb") as r:
-#     with open('lol.glb', 'wb') as f:
-#         for chunk in r.iter_content(chunk_size=2048*2048): 
-#             # If you have chunk encoded response uncomment if
-#             # and set chunk_size parameter to None.
-#             # if chunk: 
-#             f.write(chunk)
-# response = requests.get("https://ipfs.io/api/v0/get?arg="+glb_ipfs_dir_cid)
-
-# if response.status_code == 200:
-#     glb_ipfs_asset_cid = response.json()["Objects"][0]["Links"][0]["Hash"]
-#     glb_ipfs_asset_file_name = response.json()["Objects"][0]["Links"][0]["Name"]
-
-#     print("https://" + glb_ipfs_dir_cid + ".ipfs.nftstorage.link/ipfs/" +
-#             glb_ipfs_asset_cid + "?filename=" + glb_ipfs_asset_file_name)
-
-#     try:
-#         res = requests.get("https://" + glb_ipfs_dir_cid + ".ipfs.nftstorage.link/ipfs/" +
-#                             glb_ipfs_asset_cid + "?filename=" + glb_ipfs_asset_file_name, allow_redirects=True)
-
-#         if res.status_code == 200:
-#             asset_file_path = 'asset_glb.glb'
-#             write_file(asset_file_path, res.content)
-#     except:
-#         print("Error downloading GLB")
+# download_glb_from_ipfs(ipfs_directory_hash, glb_filename)
+gltf = GLTF2()
+# gltf = gltf.load("K:/UpgradeTest/ipfs_downloads/kadcars/nft_405.glb")
+gltf = gltf.load("K:/UpgradeTest/exports/kadcars/kadcar_1333.glb")
+print(gltf.extras)

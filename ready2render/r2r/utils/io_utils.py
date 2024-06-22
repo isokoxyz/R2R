@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import shutil
+from pygltflib import GLTF2
 
 def extract_data_from_json(json_file):
     try:
@@ -47,6 +48,11 @@ def file_exists(file_path):
     if os.path.isfile(file_path):
         return True
     return False
+
+def load_gltf(gltf_file_path):
+    gltf = GLTF2()
+    gltf = gltf.load(gltf_file_path)
+    return gltf
 
 def write_file(filename, data):
     try:

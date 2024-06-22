@@ -7,7 +7,7 @@ import requests
 import subprocess
 from r2r.models.nft import NFT
 from r2r.utils.io_utils import *
-from config import IPFS_BEARER_TOKEN, IPFS_CAR_FILES_PATH
+from config import IPFS_BEARER_TOKEN, IPFS_CAR_FILES_PATH, IPFS_DOWNLOAD_PATH
 
 IPFS_URL_PREFIX = "https://api.nft.storage/"
 DEFAULT_IPFS_GATEWAY = "ipfs.io"
@@ -38,11 +38,10 @@ def upload_nft_files_to_ipfs(nft_asset_path, render_asset_path):
     print("GLB")
     print(glb_url)
 
-    # webp_cid = upload_asset_to_ipfs(render_asset_path, 'image/*')
-    # webp_url = "ipfs://" + webp_cid
+    webp_cid = upload_asset_to_ipfs(render_asset_path, 'image/*')
+    webp_url = "ipfs://" + webp_cid
 
-    # return glb_url, webp_url
-    return glb_url
+    return glb_url, webp_url
 
 
 def upload_asset_to_ipfs(asset_file, format):
@@ -82,14 +81,12 @@ def pack_and_split_CAR_file(asset_path, output_path):
     carbites_command_output = subprocess.run(carbites_command, shell=True, capture_output=True)
     print(carbites_command_output)
 
-
 def pin_asset_using_cid(cid):
     command = "ipfs pin add " + cid
 
     print("Pinning asset " + cid)
     command_output = subprocess.run(command, shell=True, capture_output=True)
     print(command_output)
-
 
 def iterate_over_car_files_and_upload(car_file_dest_directory, car_file_output_path):
     glb_cid = ""
@@ -107,14 +104,13 @@ def iterate_over_car_files_and_upload(car_file_dest_directory, car_file_output_p
 
     return glb_cid
 
-
 def download_glb_asset(glb_ipfs_dir_cid):
     glb_ipfs_asset_file_name = ""
     glb_ipfs_asset_cid = ""
     asset_file_path = None
 
     try:
-        response = requests.get("https://" + DEFAULT_IPFS_GATEWAY + "/api/v0/ls?arg=" + glb_ipfs_dir_cid)
+        response = requests.get("https://" + DEFAULT_IPFS_GATEWAY + "/api/v0/ls?arg=/ipfs/" + glb_ipfs_dir_cid)
 
         if response.status_code == 200:
             glb_ipfs_asset_cid = response.json()["Objects"][0]["Links"][0]["Hash"]
@@ -137,7 +133,6 @@ def download_glb_asset(glb_ipfs_dir_cid):
 
     return asset_file_path
 
-
 def download_webp_asset(manifest):
     asset_file_path = None
 
@@ -157,20 +152,41 @@ def download_webp_asset(manifest):
     return asset_file_path
 
 def download_asset_from_ipfs(nft: NFT):
-    client = http.client.HTTPConnection(DEFAULT_IPFS_GATEWAY)
+    cid = nft.get_asset_ipfs_cid()
+    asset_filename = nft.get_asset_ipfs_file_name()
+    download_dir_name = nft.get_asset_ipfs_download_dir_name()
+    asset_download_full_path = f"{IPFS_DOWNLOAD_PATH}/{download_dir_name}/{asset_filename}"
+    url = f"https://{cid}.ipfs.nftstorage.link/{asset_filename}"
+    print(f"Downloading GLB from: {url}")
 
     try:
-        cid = str(nft.get_asset_ipfs_cid())
-        client.request("GET", "/ipfs/{}".format(cid.split("/")[0]))
-        response = client.getresponse()
+        with requests.get(url, stream=True) as response:
+            print(response.status_code)
+            response.raise_for_status()
 
-        if response.status == 200:
-            data = response.read()
+            if os.path.isdir(f"{IPFS_DOWNLOAD_PATH}/{download_dir_name}") == False:
+                os.mkdir(f"{IPFS_DOWNLOAD_PATH}/{download_dir_name}")
+            
+            with open(asset_download_full_path, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        file.write(chunk)
+            file.close()
+        print(f"GLB file downloaded successfully and saved as {asset_download_full_path}")
+        return asset_download_full_path
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
 
-            with open(cid, "wb") as file:
-                file.write(data)
-    except:
-        print("Error downloading asset from IPFS")
+def get_file_name_from_ipfs_dir(cid):
+    try:
+        response = requests.post("http://127.0.0.1:5001/api/v0/ls?arg=/ipfs/" + cid)
+
+        if response.status_code == 200:
+            ipfs_asset_file_name = response.json()["Objects"][0]["Links"][0]["Name"]
+
+            return ipfs_asset_file_name
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
 
 def add_ipfs_data_to_kc_metadata(asset_file_name, ipfs_url, destination):
     kadcar_metadata = extract_data_from_json(asset_file_name)

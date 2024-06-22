@@ -4,3 +4,4 @@
 *.jpg
 *db.sqlite3
 *.pyc
+*blend

@@ -17,39 +17,34 @@ class RenderHandler:
         self.samples = samples
 
     def render_scene(self, render_output_path, output_format, render_res_x, render_res_y, write_still=True):
+        self.configure_render_settings(self.engine, self.device_type, self.device, self.resolution_percentage, self.samples)
         # self.bpy.scene.render.filepath = "K:/" # Set save path for images
-        self.bpy.scene.render.filepath = render_output_path  # Set save path for images
+        self.bpy.context.scene.render.filepath = render_output_path  # Set save path for images
         # Set image file format
-        self.bpy.scene.render.image_settings.file_format = output_format
+        self.bpy.context.scene.render.image_settings.file_format = output_format
 
-        self.bpy.scene.render.resolution_x = render_res_x
-        self.bpy.scene.render.resolution_y = render_res_y
+        self.bpy.context.scene.render.resolution_x = render_res_x
+        self.bpy.context.scene.render.resolution_y = render_res_y
 
-        self.bpy.ops.render.render(self, write_still=write_still)
+        self.bpy.ops.render.render(write_still=write_still)
 
     def configure_render_settings(self, engine, device_type, device, resolution_percentage, samples):
-        self.engine = engine
-        self.device_type = device_type
-        self.device = device
-        self.resolution_percentage = resolution_percentage
-        self.samples = samples
-
         self.bpy.data.scenes[0].render.engine = engine
         self.bpy.data.scenes[0].render.resolution_percentage = resolution_percentage
         self.bpy.data.scenes[0].cycles.samples = samples
 
         # Set the device_type
-        self.bpy.preferences.addons["cycles"].preferences.compute_device_type = device_type
+        self.bpy.context.preferences.addons["cycles"].preferences.compute_device_type = device_type
 
         # Set the device and feature set
-        self.bpy.scene.cycles.device = device
+        self.bpy.context.scene.cycles.device = device
 
         # get_devices(self, ) to let Blender detects GPU device
-        self.bpy.preferences.addons["cycles"].preferences.get_devices(self, )
+        self.bpy.context.preferences.addons["cycles"].preferences.get_devices(self, )
         print(self,
-              self.bpy.preferences.addons["cycles"].preferences.compute_device_type)
+              self.bpy.context.preferences.addons["cycles"].preferences.compute_device_type)
 
-        for d in self.bpy.preferences.addons["cycles"].preferences.devices:
+        for d in self.bpy.context.preferences.addons["cycles"].preferences.devices:
             d["use"] = 0
             if d["name"][:6] == 'NVIDIA':
                 d["use"] = 1
@@ -68,10 +63,10 @@ class RenderHandler:
         self.configure_render_settings(
             self, engine, device_type, device, 200, 1000)
 
-        self.bpy.scene.render.bake.use_pass_direct = use_pass_direct
-        self.bpy.scene.render.bake.use_pass_indirect = use_pass_indirect
-        self.bpy.scene.render.bake.use_selected_to_active = use_selected_to_active
-        self.bpy.scene.cycles.bake_type = bake_type
+        self.bpy.context.scene.render.bake.use_pass_direct = use_pass_direct
+        self.bpy.context.scene.render.bake.use_pass_indirect = use_pass_indirect
+        self.bpy.context.scene.render.bake.use_selected_to_active = use_selected_to_active
+        self.bpy.context.scene.cycles.bake_type = bake_type
 
     def configure_render_operation_and_render(self, ):
         self.bpy.ops.render.render(self, write_still=True)

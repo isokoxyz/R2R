@@ -21,9 +21,10 @@ class Poll:
 
         curr_time = 0
         response = None
-        while curr_time < time.time() + 60*5:
+        timeout = time.time() + 60*5
+        while curr_time < timeout:
             response = execute_network_request(network_url, json.dumps(payload), headers)
-            if response["requestKey"].result.status == "success" or test == 5 or time.time() > timeout:
+            if response["requestKey"].result.status == "success" or time.time() > timeout:
                 break
             curr_time += 1
             time.sleep(5)

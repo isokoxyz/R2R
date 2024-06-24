@@ -11,8 +11,10 @@ from r2r.bpy_handlers.BpyContext import BpyContext
 from r2r.models.digital_ocean import DigitalOcean
 from r2r.ipfs_utils.ipfs_utils import upload_asset_to_ipfs
 from config import RENDER_OUTPUT_PATH, BLENDER_EXPORT_PATH, DEFAULT_SENDER
-from kad_py.main.kad_py_public import pact_build_and_fetch_local
+from kad_py.main.kad_py_public import pact_build_and_fetch_local, execute_cont_cmd, pact_fetch_local
 from kad_py.main.kad_py_pvt import get_api_url
+from kad_py.config.constants import DEFAULT_GAS_PRICE, DEFAULT_GAS_LIMIT, MAINNET_NETWORK_ID, CLI
+from kad_py.commands.env_data import EnvData
 
 
 class CombineView(views.APIView):
@@ -24,9 +26,14 @@ class CombineView(views.APIView):
         digital_ocean = DigitalOcean()
         poll = Poll(DEFAULT_SENDER, data["chain_id"])
         
-        upgrade_blueprint = poll.poll_request_key(data["request_key"])
-        if not upgrade_blueprint:
+        # poll exec step of defpact
+        tx_result = poll.poll_request_key(data["request_key"])
+        if not tx_result:
             return HttpResponse(404)
+
+        # fetch local blueprint
+        pact_code = "(n_f1c962776331c4773136dc1587a8355c9957eae1.upgrade-handler.get-blueprint \"" + data["blueprint_hash"] + "\")"
+        upgrade_blueprint = pact_build_and_fetch_local(data["sender"], pact_code, MAINNET_NETWORK_ID, data["chain_id"])
 
         # initialize nfts
         target_nft = create_nft(bpy_context=bpy, data=upgrade_blueprint["target_nft"])
@@ -34,7 +41,7 @@ class CombineView(views.APIView):
 
         # attach nft and export
         target_nft.attach_image_texture(attachment_nft)
-        target_nft.export_nft(file_path=target_nft.get_asset_glb_pawwwwth(), format="GLB")
+        target_nft.export_nft(file_path=target_nft.get_asset_glb_path(), format="GLB")
 
         # render nft
         print("RENDERING SCENE NOW")
@@ -51,5 +58,22 @@ class CombineView(views.APIView):
 
         # upload to digital ocean
         # digital_ocean.upload_to_spaces(target_nft.collection_name, updated_tgt_metadata, "public")
+
+        # complete the defpact and upgrade
+        cont_cmd = execute_cont_cmd(
+            sender=data["owner"],
+            chain_id=data["chain_id"],
+            gas_price=DEFAULT_GAS_PRICE,
+            gas_limit=DEFAULT_GAS_LIMIT,
+            ttl=600,
+            network_id=MAINNET_NETWORK_ID,
+            step=1,
+            rollback=False,
+            env_data=EnvData({}),
+            pact_tx_hash=data["request_key"],
+            sign_method=CLI,
+            signers=[data["owner"]],
+            proof=None
+        )
 
         return HttpResponse("DONE")

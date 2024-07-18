@@ -15,7 +15,8 @@ class DigitalOcean():
             aws_secret_access_key=self.aws_secret_access_key)
 
     def upload_to_spaces(self, project_name, data, uri, acl):
-        self.client.put_object(Bucket=project_name, Key=uri, Body=data, ACL=acl)
+        extra_args = { "ACL": acl }
+        self.client.put_object(Bucket=project_name, Key=uri, Body=data, **extra_args)
     
-    def upload_file(self, src_file, project_name, dest_file):
-        self.client.upload_file(src_file, project_name, dest_file)
+    def upload_file(self, src_file, project_name, dest_file, acl):
+        self.client.upload_file(Filename=src_file, Bucket=project_name, Key=dest_file, ExtraArgs={ "ACL": acl })

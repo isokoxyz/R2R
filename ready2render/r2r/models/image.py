@@ -1,6 +1,7 @@
 from r2r.models.nft import NFT
 from r2r.bpy_handlers.BpyContext import BpyContext
-
+from config import IMAGE_OUTPUT_PATH
+import requests
 
 class Image(NFT):
     """
@@ -48,7 +49,8 @@ class Image(NFT):
 
         # Create texture shader node for sticker
         texture_node = nodes.new("ShaderNodeTexImage")
-        texture_node.image = self.bpy_context.bpy.data.images.load(self.get_image_uri())  # TODO: load image
+        img_path = self.download_image()
+        texture_node.image = self.bpy_context.bpy.data.images.load(img_path)  # TODO: load image
         texture_node.name = "STICKER_NODE_{}".format(self.nft_id)
 
         # Create Mix RGB node to set kadcar color
@@ -70,6 +72,24 @@ class Image(NFT):
 
         return mix_node, 'Color1'
 
+    def download_image(self):
+        """
+        This function downloads the image NFT
+
+        Returns:
+            string: file path of downloaded image
+        """
+        img_uri = self.get_image_uri()
+        img_uri_tokens = img_uri.split("/")
+        img_name = img_uri_tokens[len(img_uri_tokens) - 1]
+        img_data = requests.get(img_uri).content
+        img_path = IMAGE_OUTPUT_PATH + "/" + img_name
+        with open(img_path, 'wb') as f:
+            f.write(img_data)
+        f.close()
+
+        return img_path
+
     def get_asset_s3_uri(self):
         """
         This function gets the digital ocean URL for the NFT render
@@ -83,8 +103,9 @@ class Image(NFT):
         Returns:
             string: image NFT URI
         """
+
         # return "C:/Users/Mohannad Ahmad/Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\hood.png"
-        return "/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/hood.png"
+        return self.uri
 
     def get_image_data(self):
         """

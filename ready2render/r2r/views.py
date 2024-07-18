@@ -62,7 +62,8 @@ class CombineView(views.APIView):
         digital_ocean.upload_file(
             target_nft.get_asset_render_path(), 
             target_nft.get_s3_render_bucket_name(), 
-            target_nft.get_nft_render_file_name()
+            target_nft.get_nft_render_file_name(),
+            "public-read"
         )
 
         # upload to ipfs and update metadata
@@ -71,10 +72,13 @@ class CombineView(views.APIView):
         # upload to digital ocean
         digital_ocean.upload_to_spaces(
             target_nft.get_s3_md_bucket_name(), 
-            target_nft.metadata, 
-            target_nft.get_md_s3_uri(), 
-            "public"
+            json.dumps(target_nft.metadata), 
+            target_nft.get_nft_name() + ".json", 
+            "public-read"
         )
+        print(target_nft.get_s3_md_bucket_name())
+        print(target_nft.get_md_s3_uri())
+        print(json.dumps(target_nft.metadata))
 
         # complete the defpact and upgrade
         caps = [

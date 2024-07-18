@@ -8,8 +8,7 @@ class RenderHandler:
         self,
         bpy,
         engine: str = 'CYCLES',
-        # device_type: str = 'CUDA',
-        device_type: str = 'METAL',
+        device_type: str = 'CUDA',
         device: str = 'GPU',
         resolution_percentage: int = 200,
         samples: int = 50

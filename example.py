@@ -14,9 +14,9 @@ def run_r2r_upgrade():
     body = {
         "target-token-id": "t:ExXnE3JpmRKRRyVwIcjY8GakAEGTqNzydrSx-0NdV50",
         "target-nft-name": "Kadcars NFT #4990",
-        "target-nft-uri": "https://kadcars-nft-metadata.nyc3.digitaloceanspaces.com/4990.json",
+        "target-nft-uri": "https://kadcars-manifests.nyc3.digitaloceanspaces.com/4990.json",
         "target-collection-id": "collection:4feG01EViLC9bR5gA-mBEFF-TEAKs12h-9tPnDVJ5qI",
-        "target-collection-name": "kadcars-nft-collection",
+        "target-collection-name": "kadcars-manifests",
         "target-collection-standard": "marmalade-v2",
         "attachment-token-id": "t:hGgcj7Y1p8VnPk4GqdZgGMKqMbcqyOOW2Zzhm-sPvK4",
         "attachment-nft-name": "test_sticker",
@@ -107,6 +107,7 @@ run_r2r_upgrade()
 # print(nft_metadata)
 # digital_ocean = DigitalOcean()
 # digital_ocean.upload_file("/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/hood.png", "kadcars-renders", "hood.png")
+# digital_ocean.upload_to_spaces("kadcars-manifests", json.dumps())
 # import bpy
 
 # bpy.context.preferences.addons["cycles"].preferences.get_devices()

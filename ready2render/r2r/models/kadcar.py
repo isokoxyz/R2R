@@ -49,8 +49,8 @@ class Kadcar(NFT):
 
         # import nft glbs into scene
         # kadcar_glb = download_asset_from_ipfs(self)
-        # kadcar_glb = "K:/UpgradeTest/ipfs_downloads/kadcars/nft_3356.glb"
-        kadcar_glb = "/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/nft_3356.glb"
+        kadcar_glb = "K:/UpgradeTest/ipfs_downloads/kadcars/nft_3356.glb"
+        # kadcar_glb = "/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/nft_3356.glb"
         glb = load_gltf(kadcar_glb)
         self.glb_extras = glb.extras
         print("IMPORTING KADCAR INTO SCENE")
@@ -97,6 +97,7 @@ class Kadcar(NFT):
             tgt_node_input=tgt_node_input
         )
         self.metadata["attachments"].append(image_nft.get_image_data())
+        print(self.metadata)
 
         self.bpy_context.shader_handler.set_input_value_in_bsdf(bsdf, 'Metallic', metallic_value)
         self.add_hdr_background_to_scene()

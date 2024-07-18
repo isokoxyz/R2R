@@ -3,11 +3,17 @@ from r2r.bpy_handlers.ObjectHandler import ObjectHandler
 
 
 class ShaderHandler:
+    """
+    This class contains helper functions to control and modify Blender shaders
+    """
     def __init__(self, bpy):
         self.bpy = bpy
         self.object_handler = ObjectHandler(bpy=bpy)
 
     def customize_world_shader_nodes(self, hdri, type):
+        """
+        This function sets the world shader nodes and hdri for the specified scene type (KADCARS)
+        """
         context = self.bpy.context
         scene = context.scene
 
@@ -173,6 +179,9 @@ class ShaderHandler:
                 node_background.outputs["Background"], node_output.inputs["Surface"])
 
     def get_principled_bsdf_for_material_by_name(self, material_name):
+        """
+        This function gets principled BSDF node data from material with given name
+        """
         material = self.bpy.data.materials[material_name]
         material.use_nodes = True
         tree = material.node_tree
@@ -182,24 +191,39 @@ class ShaderHandler:
         return bsdf
 
     def get_principled_bsdf_for_active_material(self, tgt_object):
+        """
+        This function gets principled BSDF node data from material
+        """
         material = tgt_object.material_slots[0].material
         print(tgt_object.material_slots)
         bsdf = material.node_tree.nodes["Principled BSDF"]
         return bsdf
 
     def get_node_tree_for_selected_object(self, tgt_object):
+        """
+        This function gets node tree for selected object
+        """
         material = tgt_object.material_slots[0].material
         node_tree = material.node_tree
         return node_tree
 
     def get_input_value_from_bsdf(self, principled_bsdf, value_name):
+        """
+        This function gets principled BSDF node input value 
+        """
         value = principled_bsdf.inputs[value_name].default_value
         return value
 
     def set_input_value_in_bsdf(self, principled_bsdf, value_name, value):
+        """
+        This function sets given input value of principled BSDF node
+        """
         principled_bsdf.inputs[value_name].default_value = value
 
     def change_object_base_color(self, color, mtl_name, tgt_object):
+        """
+        This function changes base color in principled BSDF to given value
+        """
         tgt_object.data.materials.clear()
         material = self.bpy.data.materials.new(name=mtl_name)
 
@@ -211,12 +235,18 @@ class ShaderHandler:
         tgt_object.data.materials.append(material)
 
     def change_object_emission_level(self, tgt_object, emission_value, emission_color):
+        """
+        This value changes emission level of given object's material
+        """
         bsdf = self.get_principled_bsdf_for_active_material(tgt_object)
         bsdf.inputs["Emission Strength"].default_value = emission_value
         bsdf.inputs["Emission"].default_value = emission_color
         print(bsdf.inputs["Emission Strength"].default_value)
 
     def apply_texture_image_to_object(self, clean, tex_image_path, tgt_object):
+        """
+        This function applies given texture to target object
+        """
         # if clean:
         #     tgt_object.data.materials.clear()
 
@@ -234,10 +264,16 @@ class ShaderHandler:
             tgt_object.data.materials.append(material)
 
     def add_background_shader_node(self, tree_nodes, strength):
+        """
+        This function adds a shader node to the object node tree
+        """
         node_background = tree_nodes.new(type='ShaderNodeBackground')
         node_background.inputs['Strength'].default_value = strength
 
     def add_sky_texture_shader_node(self, tree_nodes, sky_type, sun_disc, sun_elevation, sun_rotation, air_density, dust_density, ozone_density):
+        """
+        This function modifies the sky texture node values
+        """
         sky_texture = tree_nodes.new('ShaderNodeTexSky')
 
         sky_texture.sky_type = sky_type
@@ -249,17 +285,26 @@ class ShaderHandler:
         sky_texture.ozone_density = ozone_density
 
     def add_mapping_shader_node(self, tree_nodes, vector_type, rotation):
+        """
+        This function adds a mapping shader node to object node tree
+        """
         mapping_node = tree_nodes.new('ShaderNodeMapping')
 
         mapping_node.vector_type = vector_type
         mapping_node.inputs["Rotation"].default_value = rotation
 
     def add_texture_coordinates_shader_node(self, tree_nodes, from_instancer):
+        """
+        This function adds a mapping shader node to object node tree
+        """
         tex_coord_node = tree_nodes.new('ShaderNodeTexCoord')
 
         tex_coord_node.from_instancer = from_instancer
 
     def transfer_materials_bulk(self, clean, src, target_object_names):
+        """
+        This function transfers the materials from an object to a list of specified targets
+        """
         print(target_object_names)
         for tgt in target_object_names:
             print(tgt)
@@ -268,6 +313,9 @@ class ShaderHandler:
                 clean, src, target_object)
 
     def transfer_materials(self, clean, src, tgt):
+        """
+        This function transfers the materials from an object to a specified target
+        """
         if clean:
             tgt.data.materials.clear()  # ensure the target material slots are clean
 
@@ -275,6 +323,9 @@ class ShaderHandler:
             tgt.data.materials.append(mat)
     
     def add_uv_map(self, active_object):
+        """
+        This function creates UV Map for active object
+        """
         self.bpy.context.scene.objects.active = active_object
         self.bpy.ops.mesh.uv_texture_add()
         self.bpy.ops.object.editmode_toggle()

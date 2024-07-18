@@ -6,6 +6,10 @@ from r2r.bpy_handlers.BpyContext import BpyContext
 from r2r.ipfs_utils.ipfs_utils import download_asset_from_ipfs, upload_nft_files_to_ipfs, get_file_name_from_ipfs_dir
 
 class Kadcar(NFT):
+    """
+    This class represents a Kadcar NFT and provides the functionality needed to 
+    fetch and alter the NFT's data
+    """
     def __init__(
         self,
         bpy_context: BpyContext,
@@ -23,17 +27,30 @@ class Kadcar(NFT):
         self.glb_extras = None
 
     def fetch_nft_metadata(self):
+        """
+        This function fetches the Kadcar NFT's metadata
+
+        Returns:
+            dict: json object containing the Kadcar's metadata
+        """
         kadcar_nft_data = super().fetch_nft_data_from_blockchain()
         kadcar_nft_metadata = super().fetch_nft_metadata(kadcar_nft_data["result"]["data"]["uri"])
 
         return kadcar_nft_metadata
 
     def attach_image_texture(self, image_nft: Image):
+        """
+        This function adds an image texture to the Kadcar's shader nodes
+
+        Returns:
+            dict: json object containing the Kadcar's metadata
+        """
         bpy = self.bpy_context
 
         # import nft glbs into scene
         # kadcar_glb = download_asset_from_ipfs(self)
-        kadcar_glb = "K:/UpgradeTest/ipfs_downloads/kadcars/nft_5258.glb"
+        # kadcar_glb = "K:/UpgradeTest/ipfs_downloads/kadcars/nft_3356.glb"
+        kadcar_glb = "/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/nft_3356.glb"
         glb = load_gltf(kadcar_glb)
         self.glb_extras = glb.extras
         print("IMPORTING KADCAR INTO SCENE")
@@ -87,6 +104,9 @@ class Kadcar(NFT):
         return self.metadata
 
     def remove_image_texture(self, image_texture_id: str):
+        """
+        This function removes the specified image texture from the Kadcar's shader nodes
+        """
         bpy = self.bpy_context
 
         # import nft glbs into scene
@@ -101,6 +121,12 @@ class Kadcar(NFT):
         self.add_kadcar_image_texture_shader_nodes(bpy=bpy, kadcar_object=kadcar_object, to_exclude=image_texture_id)
 
     def add_kadcar_image_texture_shader_nodes(self, bpy: BpyContext, kadcar_object, to_exclude: str=None):
+        """
+        This function the shader nodes for the image textures the Kadcar model has
+
+        Returns:
+            tuple(ShaderNodeMixRGB, string): BPY Node object and string representing the target shader node and its input field
+        """
         # Retrieve bsdf values and node tree
         bsdf = bpy.shader_handler.get_principled_bsdf_for_active_material(kadcar_object)
         base_color = bpy.shader_handler.get_input_value_from_bsdf(bsdf, 'Base Color')
@@ -139,6 +165,12 @@ class Kadcar(NFT):
         return tgt_node, tgt_node_input
 
     def upload_nft_to_ipfs(self):
+        """
+        This function uploads the Kadcar NFT to IPFS
+
+        Returns:
+            dict: json object containing the Kadcar's metadata
+        """
         kadcar_glb_path = self.get_asset_glb_path()
         kadcar_render_path = self.get_asset_render_path()
 
@@ -149,43 +181,115 @@ class Kadcar(NFT):
 
         return self.metadata
 
+    def get_nft_name(self):
+        """
+        This function returns the Kadcar NFT's name
+        """
+        return self.get_kadcar_vin()
+
     def set_kadcar_image_uri(self, uri):
+        """
+        This function sets the Kadcar's render URI value in the metadata
+        """
         self.metadata["uri"]["data"] = uri
 
     def set_kadcar_model_uri(self, uri):
+        """
+        This function sets the Kadcar's GLB URI value in the metadata
+        """
         self.metadata["data"][2]["datum"]["art-asset"]["data"] = uri
 
     def get_asset_render_format(self):
+        """
+        This function gets the Kadcar's render format
+
+        Returns:
+            string: name of render output format
+        """
         return "WEBP"
 
     def get_kadcar_image_uri(self):
+        """
+        This function gets the Kadcar's render URI from the metadata
+
+        Returns:
+            string: Kadcar's image URI
+        """
         return self.metadata["uri"]["data"]
 
     def get_kadcar_model_uri(self):
+        """
+        This function gets the Kadcar's GLB URI from the metadata
+        """
         return self.metadata["data"][2]["datum"]["art-asset"]["data"]
 
     def get_kadcar_type(self):
+        """
+        This function gets the Kadcar's type from the metadata
+
+        Returns:
+            string: name of Kadcar type
+        """
         return self.metadata["data"][0]["datum"]["components"][0]["stats"][0]["val"]
 
     def get_kadcar_vin(self):
+        """
+        This function gets the Kadcar's VIN from the metadata
+
+        Returns:
+            string: Kadcar's VIN string
+        """
         return self.metadata["data"][1]["datum"]["vehicle-information"]["vin"]
     
     def get_kadcar_model_cid(self):
+        """
+        This function gets the Kadcar's IPFS CID
+
+        Returns:
+            string: Kadcar IPFS CID from URI
+        """
         return str(self.get_kadcar_model_uri().split("://")[1])
     
     def get_asset_ipfs_cid(self):
+        """
+        This function gets the Kadcar's IPFS CID
+
+        Returns:
+            string: Kadcar IPFS CID from URI
+        """
         return str(self.get_kadcar_model_uri().split("://")[1])
 
     def get_asset_render_aspect_ratio(self):
+        """
+        This function gets the render's aspect ratio from the GLB file
+
+        Returns:
+            object: contains x and y values for the Kadcar render's aspect ratio
+        """
         return self.glb_extras["config"]["render_settings"]["aspect-ratio"]
 
     def get_asset_render_aspect_ratio_x(self):
+        """
+        This function gets the x value of the render's aspect ratio
+        
+        Returns:
+            int: contains x value for the Kadcar render's aspect ratio
+        """
         return self.get_asset_render_aspect_ratio()["res_x"]
 
     def get_asset_render_aspect_ratio_y(self):
+        """
+        This function gets the y value of the render's aspect ratio
+        
+        Returns:
+            int: contains y value for the Kadcar render's aspect ratio
+        """
         return self.get_asset_render_aspect_ratio()["res_y"]
 
     def export_nft(self, file_path, format="GLB"):
+        """
+        This function exports the Kadcar blender file in the specified format
+        """
         self.bpy_context.camera_handler.set_scene_camera("Camera_Orientation")
         super().export_nft(file_path, format)
 
@@ -195,9 +299,21 @@ class Kadcar(NFT):
 
     # HDRI settings
     def get_kadcar_background(self):
+        """
+        This function gets the Kadcar background from its metadata
+
+        Returns:
+            string: name of the background
+        """
         return self.metadata["data"][3]["datum"]["datum"]["attributes"][0]["value"]
     
     def get_background_hdr_file_name(self, background):
+        """
+        This function gets the name of the HDR file bsaed on the background
+        
+        Returns:
+            string: name of the HDR file for the given background
+        """
         if background == "Digital Den":
             return "storage_background"
         elif background == "Kadena Beach":
@@ -208,6 +324,12 @@ class Kadcar(NFT):
             return "mountain_background"
 
     def get_background_hdr(self):
+        """
+        This function gets the HDR file for the background specified
+
+        Returns:
+            string: HDR background file path
+        """
         background = self.get_kadcar_background()
         hdr_name = self.get_background_hdr_file_name(background)
         hdr_file_path = f"{HDR_FILES_PATH}/{hdr_name}"
@@ -220,13 +342,43 @@ class Kadcar(NFT):
         return hdr_file_path
     
     def add_hdr_background_to_scene(self):
+        """
+        This function adds HDR background to the scene
+        """
         background = self.get_kadcar_background()
         hdr_file = self.get_background_hdr()
 
         self.bpy_context.shader_handler.customize_world_shader_nodes(hdr_file, background)
 
     # Path getters
+    def get_s3_md_bucket_name(self):
+        """
+        This function gets the name of the Kadcar NFT's metadata bucket name
+
+        Returns:
+            string: name of the S3 bucket
+        """
+
+        # return "kadcars-nft-metadata"
+        return "kadcars-manifests"
+    
+    def get_s3_render_bucket_name(self):
+        """
+        This function gets the name of the Kadcar NFT's render bucket name
+
+        Returns:
+            string: name of the S3 bucket
+        """
+
+        return "kadcars-renders"
+    
     def get_kadcar_w_uvs_path(self):
+        """
+        This function gets the Kadcar GLB file containing the sticker location UV Maps
+
+        Returns:
+            string: Kadcar model with UV map's file path
+        """
         kadcar_type = self.get_kadcar_type()
 
         if kadcar_type == "K:2":
@@ -235,28 +387,95 @@ class Kadcar(NFT):
             pass
 
     def get_asset_glb_path(self):
+        """
+        This function gets the NFT asset's GLB path
+
+        Returns:
+            string: file path for Kadcar GLB
+        """
         dir_name = self.get_asset_export_dir_name()
         vin = self.get_kadcar_vin()
 
         return f"{BLENDER_EXPORT_PATH}/{dir_name}/kadcar_{vin}.glb"
     
     def get_asset_render_path(self):
+        """
+        This function gets the path where the NFT render file will be saved
+
+        Returns:
+            string: file path for the Kadcar's render
+        """
         dir_name = self.get_asset_render_dir_name()
         vin = self.get_kadcar_vin()
 
-        return f"{RENDER_OUTPUT_PATH}/{dir_name}/kadcar_{vin}"
+        return f"{RENDER_OUTPUT_PATH}/{dir_name}/kadcar_{vin}.webp"
+
+    def get_base_asset_s3_uri(self):
+        """
+        This function gets the digital ocean Base URL for the NFT render
+        """
+        vin = self.get_kadcar_vin()
+
+        return f"https://{self.collection_name}.nyc3.digitaloceanspaces.com/{vin}"
+
+    def get_md_s3_uri(self):
+        """
+        This function gets the digital ocean URL for the NFT metadata
+        """
+
+        return f"{self.get_base_asset_s3_uri()}.json"
+    
+    def get_asset_s3_uri(self):
+        """
+        This function gets the digital ocean URL for the NFT render
+        """
+
+        return f"{self.get_base_asset_s3_uri()}.webp"
 
     def get_asset_ipfs_file_name(self):
+        """
+        This function gets the NFTs file name on IPFS
+
+        Returns:
+            string: name of NFT file on IPFS
+        """
         return get_file_name_from_ipfs_dir(self.get_kadcar_model_cid())
     
     def get_asset_ipfs_download_dir_name(self):
+        """
+        This function gets the file path where the IPFS asset gets downloaded
+
+        Returns:
+            string: name of directory for Kadcar IPFS downloads
+        """
         dir_name = super().get_asset_ipfs_download_dir_name("kadcars")
         return dir_name
     
     def get_asset_export_dir_name(self):
+        """
+        This function gets the directory where assets get exported
+
+        Returns:
+            string: name of directory where Kadcar exports are stored
+        """
         dir_name = super().get_asset_export_dir_name("kadcars")
         return dir_name
 
     def get_asset_render_dir_name(self):
+        """
+        This function gets the directory where the NFT asset render is saved
+
+        Returns:
+            string: name of directory where render files are stored
+        """
         dir_name = super().get_asset_render_dir_name("kadcars")
         return dir_name
+    
+    def get_nft_render_file_name(self):
+        """
+        This function returns the name of the render file
+
+        Returns:
+            string: name of the NFT render's file
+        """
+        return self.get_nft_name() + "." + self.get_asset_render_format().lower()

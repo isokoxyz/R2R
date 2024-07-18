@@ -3,6 +3,10 @@ from r2r.bpy_handlers.BpyContext import BpyContext
 
 
 class Image(NFT):
+    """
+    This class defines an Image type NFT and all the functionality to alter, or combine it
+    with other assets in Blender
+    """
     def __init__(
         self,
         bpy_context: BpyContext,
@@ -19,9 +23,21 @@ class Image(NFT):
         self.uv_map = uv_map
 
     def fetch_nft_metadata(self):
+        """
+        This function fetches the Kadcar NFT's metadata
+
+        Returns:
+            dict: json object containing the Kadcar's metadata
+        """
         pass
 
     def add_shader_nodes_for_image_texture(self, tgt_base_color, tgt_node_tree, tgt_node, tgt_node_input):
+        """
+        This function creates image texture shader nodes to attach the NFT image to the given target
+
+        Returns:
+            tuple(ShaderNodeMixRGB, string): BPY Node object and string representing the target shader node and its input field
+        """
         nodes = tgt_node_tree.nodes
 
         # Create UV map node to specify destination
@@ -54,10 +70,29 @@ class Image(NFT):
 
         return mix_node, 'Color1'
 
+    def get_asset_s3_uri(self):
+        """
+        This function gets the digital ocean URL for the NFT render
+        """
+        pass
+
     def get_image_uri(self):
-        return "C:/Users/Mohannad Ahmad/Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\hood.png"
+        """
+        This function returns the URI to the NFT's image asset
+
+        Returns:
+            string: image NFT URI
+        """
+        # return "C:/Users/Mohannad Ahmad/Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\hood.png"
+        return "/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/hood.png"
 
     def get_image_data(self):
+        """
+        This function retrieves the NFT image's data 
+
+        Returns:
+            dict: contains image data
+        """
         return {
             "token_id": self.token_id,
             "nft_id": self.nft_id,

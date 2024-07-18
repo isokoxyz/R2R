@@ -3,6 +3,9 @@ from r2r.bpy_handlers.ObjectHandler import ObjectHandler
 
 
 class SceneHandler:
+    """
+    This class contains helper functions to control and modify a Blender scene
+    """
     def __init__(self, bpy):
         self.bpy = bpy
         self.object_handler = ObjectHandler(bpy=bpy)
@@ -23,31 +26,47 @@ class SceneHandler:
         self.bpy.ops.object.delete()
 
     def delete_objects_from_collection_name(self, collection_name):
+        """
+        This function deletes all objects from the collection with the specified name
+        """
         self.bpy.ops.outliner.orphans_purge()
         self.select_only_objects_in_collection_name(collection_name)
         self.delete_and_unlink()
 
     def delete_and_unlink(self):
+        """
+        This function deletes all objects and their links
+        """
         for o in self.bpy.context.selected_objects:
             self.bpy.data.objects.remove(o, do_unlink=True)
 
     def deselect_all_scene_objects(self):
+        """
+        This function deletes all scene objects
+        """
         # for ob in bpy.context.selected_objects:
         #     ob.select_set(False)
         self.bpy.ops.object.select_all(action='DESELECT')
 
-    # Selection
-
     def select_only_objects_in_collection_name(self, collection_name):
+        """
+        This function selects objects in the collection with the specified name
+        """
         collection = self.bpy.data.collections[collection_name]
         self.deselect_all_scene_objects()
         self.select_all_objects_in_collection(collection)
 
     def select_only_objects_in_collection(self, collection):
+        """
+        This function selects objects in the specified collection
+        """
         self.deselect_all_scene_objects()
         self.select_all_objects_in_collection(collection)
 
     def select_all_objects_in_collection(self, collection):
+        """
+        This function selects objects in the specified collection
+        """
         # for obj in collection.all_objects:
         #     obj.select_set(True)
         for scene in self.bpy.data.scenes:
@@ -57,8 +76,10 @@ class SceneHandler:
                         print(o)
                         o.select_set(True)
 
-    # Import / Export
     def import_scene_into_collection(self, file_path, collection_name):
+        """
+        This function imports data from file into the scene with the specified collection naeme
+        """
         bpy = self.bpy
         bpy.ops.object.select_all(action='DESELECT')
 
@@ -73,6 +94,9 @@ class SceneHandler:
         return bpy.data.collections[collection_name]
 
     def export_scene(self, output_file, export_all=True, format='GLB'):
+        """
+        This function exports the scene with the specified format to the destination path
+        """
         if export_all:
             self.bpy.ops.object.select_all(action='SELECT')
         # print("OVERRIDING CONTEXT")
@@ -97,8 +121,6 @@ class SceneHandler:
                 # use_mesh_vertices=True,
                 # export_extras=True
             )
-
-    # Object operations
 
     def rename_object_in_scene(self, old_name, new_name):
         old_object = self.bpy.data.objects.get(old_name)
@@ -182,9 +204,10 @@ class SceneHandler:
             self.object_handler.material_handler.transfer_materials(should_clear_old_materials,
                                                                     dest_group_object, target_object)
 
-    # Collection operations
-
     def relink_collection(self, src_collection_name, dest_collection_name):
+        """
+        This function links objects from source collection to destination collection
+        """
         src_collection = self.bpy.data.collections[src_collection_name]
         dest_collection = self.bpy.data.collections[dest_collection_name]
 
@@ -193,6 +216,9 @@ class SceneHandler:
             src_collection.objects.unlink(o)
 
     def add_metadata_to_gltf(gltf_file_path, metadata, save_format):
+        """
+        This function adds extra metadata to the GLTF file's 'extras' parameter
+        """
         gltf = GLTF2()
         gltf = gltf.load(gltf_file_path)
         gltf.extras = metadata

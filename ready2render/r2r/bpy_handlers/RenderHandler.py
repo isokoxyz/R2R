@@ -1,10 +1,15 @@
 
 class RenderHandler:
+    """
+    This class contains helper functions to set up and execute the render functionality 
+    in the Blender scene
+    """
     def __init__(
         self,
         bpy,
         engine: str = 'CYCLES',
-        device_type: str = 'CUDA',
+        # device_type: str = 'CUDA',
+        device_type: str = 'METAL',
         device: str = 'GPU',
         resolution_percentage: int = 200,
         samples: int = 50
@@ -17,6 +22,9 @@ class RenderHandler:
         self.samples = samples
 
     def render_scene(self, render_output_path, output_format, render_res_x, render_res_y, write_still=True):
+        """
+        This function renders the current blender scene with the specified format and resolution
+        """
         self.configure_render_settings(self.engine, self.device_type, self.device, self.resolution_percentage, self.samples)
         # self.bpy.scene.render.filepath = "K:/" # Set save path for images
         self.bpy.context.scene.render.filepath = render_output_path  # Set save path for images
@@ -29,6 +37,9 @@ class RenderHandler:
         self.bpy.ops.render.render(write_still=write_still)
 
     def configure_render_settings(self, engine, device_type, device, resolution_percentage, samples):
+        """
+        This function is used to configure the blender render settings
+        """
         self.bpy.data.scenes[0].render.engine = engine
         self.bpy.data.scenes[0].render.resolution_percentage = resolution_percentage
         self.bpy.data.scenes[0].cycles.samples = samples
@@ -60,6 +71,9 @@ class RenderHandler:
     #         scene.cycles.samples = samples
 
     def configure_bake_settings(self, engine, device_type, device, use_pass_direct, use_pass_indirect, use_selected_to_active, bake_type):
+        """
+        This function configures the settings for the blender baking procedure
+        """
         self.configure_render_settings(
             self, engine, device_type, device, 200, 1000)
 

@@ -11,20 +11,11 @@ class DigitalOcean():
         self.client = self.session.client('s3',
             region_name='nyc3',
             endpoint_url='https://nyc3.digitaloceanspaces.com',
-            aws_access_key_id="DO00CUMTJ7ZEQCJHEBD4",
-            aws_secret_access_key="VudP+3LoE5JpuT/8R4jDk8RiL55EG5poeqzHNTRH47A")
+            aws_access_key_id=self.aws_access_key_id[0],
+            aws_secret_access_key=self.aws_secret_access_key)
 
     def upload_to_spaces(self, project_name, data, uri, acl):
-        bucket = self.get_bucket_for_project(project_name=project_name)
-        # test = self.client.get_object(Bucket=bucket,Key="./lol.json")
-        # print(test)
-        self.client.put_object(Bucket=bucket,
-            Key=uri,
-            Body=data,
-            ACL=acl
-        )
-
-    def get_bucket_for_project(self, project_name):
-        if project_name == 'kadcars':
-            return 'kadcars-manifests'
-            # return 'kadcars-nft-metadata'
+        self.client.put_object(Bucket=project_name, Key=uri, Body=data, ACL=acl)
+    
+    def upload_file(self, src_file, project_name, dest_file):
+        self.client.upload_file(src_file, project_name, dest_file)

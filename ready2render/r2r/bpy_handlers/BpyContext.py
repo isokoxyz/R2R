@@ -6,6 +6,10 @@ from r2r.bpy_handlers.RenderHandler import RenderHandler
 from r2r.bpy_handlers.CameraHandler import CameraHandler
 
 class BpyContext:
+    """
+    This class instantiates the handlers that access Blender functionality
+    from the BPY module
+    """
     def __init__(self):
         import bpy
         self.bpy = bpy
@@ -17,4 +21,7 @@ class BpyContext:
         self.material_handler = MaterialHandler(bpy=self.bpy)
 
     def initialize_scene(self):
+        """
+        This function clears all objects in the Blender scene
+        """
         self.scene_handler.delete_all_objects_in_scene()

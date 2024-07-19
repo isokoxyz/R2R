@@ -59,7 +59,9 @@ def run_r2r_upgrade():
             "sender": SENDER,
             "blueprint_hash": blueprint_hash,
             "env_data": json.dumps(body),
-            "blueprint": json.dumps(blueprint_data)})
+            "blueprint": json.dumps(blueprint_data),
+            "action": "remove"
+        })
     exit()
 
     caps = [
@@ -94,7 +96,8 @@ def run_r2r_upgrade():
             "sender": SENDER,
             "blueprint_hash": blueprint_hash,
             "env_data": json.dumps(body),
-            "blueprint": json.dumps(blueprint_data)
+            "blueprint": json.dumps(blueprint_data),
+            "action": "attach"
         })
 
 run_r2r_upgrade()

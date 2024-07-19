@@ -46,7 +46,11 @@ class CombineView(views.APIView):
         attachment_nft = create_nft(bpy_context=bpy, data=json.loads(data["blueprint"])["attachment_nft"])
 
         # attach nft and export
-        target_nft.attach_image_texture(attachment_nft)
+        if data["action"] == "attach":
+            target_nft.attach_image_texture(attachment_nft)
+        elif data["action"] == "remove":
+            target_nft.remove_image_texture(attachment_nft.token_id)
+        
         target_nft.export_nft(file_path=target_nft.get_asset_glb_path(), format="GLB")
 
         # render nft

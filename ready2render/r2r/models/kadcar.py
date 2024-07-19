@@ -107,6 +107,9 @@ class Kadcar(NFT):
     def remove_image_texture(self, image_texture_id: str):
         """
         This function removes the specified image texture from the Kadcar's shader nodes
+
+        Returns:
+            dict: json object containing the Kadcar's metadata
         """
         bpy = self.bpy_context
 
@@ -120,6 +123,8 @@ class Kadcar(NFT):
         # select target kadcar
         kadcar_object = bpy.object_handler.select_object_by_name_and_make_active("Car_Body")
         self.add_kadcar_image_texture_shader_nodes(bpy=bpy, kadcar_object=kadcar_object, to_exclude=image_texture_id)
+
+        return self.metadata
 
     def add_kadcar_image_texture_shader_nodes(self, bpy: BpyContext, kadcar_object, to_exclude: str=None):
         """

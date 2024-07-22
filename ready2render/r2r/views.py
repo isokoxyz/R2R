@@ -32,14 +32,14 @@ class CombineView(views.APIView):
         poll = Poll(DEFAULT_SENDER, data["chain_id"])
         
         # poll exec step of defpact
-        # tx_result = poll.poll_request_key(data["request_key"])
-        # if tx_result == None or tx_result == "failure":
-        #     return HttpResponse(404)
+        tx_result = poll.poll_request_key(data["request_key"])
+        if tx_result == None or tx_result == "failure":
+            return HttpResponse(404)
 
         # fetch local blueprint
-        # pact_code = "(n_f1c962776331c4773136dc1587a8355c9957eae1.upgrades.get-blueprint \"" + data["blueprint_hash"] + "\")"
-        # upgrade_blueprint = pact_build_and_fetch_local(data["sender"], pact_code, MAINNET_NETWORK_ID, data["chain_id"])
-        # print(upgrade_blueprint)
+        pact_code = "(n_f1c962776331c4773136dc1587a8355c9957eae1.upgrades.get-blueprint \"" + data["blueprint_hash"] + "\")"
+        upgrade_blueprint = pact_build_and_fetch_local(data["sender"], pact_code, MAINNET_NETWORK_ID, data["chain_id"])
+        print(upgrade_blueprint)
         
         # initialize nfts
         target_nft = create_nft(bpy_context=bpy, data=json.loads(data["blueprint"])["target_nft"])
@@ -93,26 +93,21 @@ class CombineView(views.APIView):
         ]
 
         cont_res="DONE"
-        # cont_res = execute_cont_cmd(
-        #     sender=data["owner"],
-        #     chain_id=data["chain_id"],
-        #     gas_price=DEFAULT_GAS_PRICE,
-        #     gas_limit=DEFAULT_GAS_LIMIT,
-        #     ttl=600,
-        #     network_id=MAINNET_NETWORK_ID,
-        #     step=1,
-        #     rollback=False,
-        #     env_data=EnvData(data=data["env_data"]),
-        #     pact_tx_hash=data["request_key"],
-        #     sign_method=CLI,
-        #     signers=[data["owner"]],
-        #     caps=caps,
-        #     proof=None
-        # )
-
-        # print("--------------------------------------------")
-        # print("cont response")
-        # print(cont_res)
-        
+        cont_res = execute_cont_cmd(
+            sender=data["owner"],
+            chain_id=data["chain_id"],
+            gas_price=DEFAULT_GAS_PRICE,
+            gas_limit=DEFAULT_GAS_LIMIT,
+            ttl=600,
+            network_id=MAINNET_NETWORK_ID,
+            step=1,
+            rollback=False,
+            env_data=EnvData(data=data["env_data"]),
+            pact_tx_hash=data["request_key"],
+            sign_method=CLI,
+            signers=[data["owner"]],
+            caps=caps,
+            proof=None
+        )
 
         return HttpResponse(cont_res)

@@ -365,8 +365,8 @@ class Kadcar(NFT):
             string: name of the S3 bucket
         """
 
-        # return "kadcars-nft-metadata"
-        return "kadcars-manifests"
+        return "kadcars-nft-metadata"
+        # return "kadcars-manifests"
     
     def get_s3_render_bucket_name(self):
         """

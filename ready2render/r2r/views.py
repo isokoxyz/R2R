@@ -67,7 +67,8 @@ class CombineView(views.APIView):
             target_nft.get_asset_render_path(), 
             target_nft.get_s3_render_bucket_name(), 
             target_nft.get_nft_render_file_name(),
-            "public-read"
+            "public-read",
+            "image/webp"
         )
 
         # upload to ipfs and update metadata
@@ -78,7 +79,8 @@ class CombineView(views.APIView):
             target_nft.get_s3_md_bucket_name(), 
             json.dumps(target_nft.metadata), 
             target_nft.get_nft_name() + ".json", 
-            "public-read"
+            "public-read-write",
+            "application/json"
         )
         print(target_nft.get_s3_md_bucket_name())
         print(target_nft.get_md_s3_uri())

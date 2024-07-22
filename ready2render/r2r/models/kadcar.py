@@ -48,9 +48,7 @@ class Kadcar(NFT):
         bpy = self.bpy_context
 
         # import nft glbs into scene
-        # kadcar_glb = download_asset_from_ipfs(self)
-        kadcar_glb = "K:/UpgradeTest/ipfs_downloads/kadcars/nft_3356.glb"
-        # kadcar_glb = "/Users/mohannadahmad/Desktop/AppDev/Kadena/R2R/ready2render/r2r/kadcars/nft_3356.glb"
+        kadcar_glb = download_asset_from_ipfs(self)
         glb = load_gltf(kadcar_glb)
         self.glb_extras = glb.extras
         print("IMPORTING KADCAR INTO SCENE")

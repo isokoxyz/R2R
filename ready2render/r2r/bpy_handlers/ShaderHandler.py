@@ -195,7 +195,6 @@ class ShaderHandler:
         This function gets principled BSDF node data from material
         """
         material = tgt_object.material_slots[0].material
-        print(tgt_object.material_slots)
         bsdf = material.node_tree.nodes["Principled BSDF"]
         return bsdf
 
@@ -241,7 +240,6 @@ class ShaderHandler:
         bsdf = self.get_principled_bsdf_for_active_material(tgt_object)
         bsdf.inputs["Emission Strength"].default_value = emission_value
         bsdf.inputs["Emission"].default_value = emission_color
-        print(bsdf.inputs["Emission Strength"].default_value)
 
     def apply_texture_image_to_object(self, clean, tex_image_path, tgt_object):
         """
@@ -305,9 +303,7 @@ class ShaderHandler:
         """
         This function transfers the materials from an object to a list of specified targets
         """
-        print(target_object_names)
         for tgt in target_object_names:
-            print(tgt)
             target_object = self.bpy.data.objects.get(tgt)
             self.object_handler.material_handler.transfer_materials(
                 clean, src, target_object)

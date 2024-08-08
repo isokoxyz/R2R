@@ -104,7 +104,6 @@ class Image(NFT):
             string: image NFT URI
         """
 
-        # return "C:/Users/Mohannad Ahmad/Desktop\AppDev\Crypto\Kadena\Kadcars\R2R/ready2render/r2r\kadcars\hood.png"
         return self.uri
 
     def get_image_data(self):

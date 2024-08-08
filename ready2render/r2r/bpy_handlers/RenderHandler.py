@@ -51,8 +51,6 @@ class RenderHandler:
 
         # get_devices(self, ) to let Blender detects GPU device
         self.bpy.context.preferences.addons["cycles"].preferences.get_devices(self, )
-        print(self,
-              self.bpy.context.preferences.addons["cycles"].preferences.compute_device_type)
 
         for d in self.bpy.context.preferences.addons["cycles"].preferences.devices:
             d["use"] = 0

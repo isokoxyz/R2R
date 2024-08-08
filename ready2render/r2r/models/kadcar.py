@@ -95,7 +95,6 @@ class Kadcar(NFT):
             tgt_node_input=tgt_node_input
         )
         self.metadata["attachments"].append(image_nft.get_image_data())
-        print(self.metadata)
 
         self.bpy_context.shader_handler.set_input_value_in_bsdf(bsdf, 'Metallic', metallic_value)
         self.add_hdr_background_to_scene()
@@ -364,7 +363,6 @@ class Kadcar(NFT):
         """
 
         return "kadcars-nft-metadata"
-        # return "kadcars-manifests"
     
     def get_s3_render_bucket_name(self):
         """

@@ -39,7 +39,6 @@ class CombineView(views.APIView):
         # fetch local blueprint
         pact_code = "(n_f1c962776331c4773136dc1587a8355c9957eae1.upgrades.get-blueprint \"" + data["blueprint_hash"] + "\")"
         upgrade_blueprint = pact_build_and_fetch_local(data["sender"], pact_code, MAINNET_NETWORK_ID, data["chain_id"])
-        print(upgrade_blueprint)
         
         # initialize nfts
         target_nft = create_nft(bpy_context=bpy, data=json.loads(data["blueprint"])["target_nft"])
@@ -71,9 +70,6 @@ class CombineView(views.APIView):
             "image/webp"
         )
 
-        # upload to ipfs and update metadata
-        # updated_tgt_metadata = target_nft.upload_nft_to_ipfs()
-
         # upload to digital ocean
         digital_ocean.upload_to_spaces(
             target_nft.get_s3_md_bucket_name(), 
@@ -82,9 +78,6 @@ class CombineView(views.APIView):
             "public-read-write",
             "application/json"
         )
-        print(target_nft.get_s3_md_bucket_name())
-        print(target_nft.get_md_s3_uri())
-        print(json.dumps(target_nft.metadata))
 
         # complete the defpact and upgrade
         caps = [

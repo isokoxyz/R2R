@@ -99,11 +99,7 @@ class SceneHandler:
         """
         if export_all:
             self.bpy.ops.object.select_all(action='SELECT')
-        # print("OVERRIDING CONTEXT")
-        # context_override = bpy.context.copy()
-        # context_override["active_object"] = None
 
-        # with bpy.context.temp_override(active_object=bpy.data.objects["Car_Body"], window=bpy.context.window):
         if format == "GLB":
             self.bpy.ops.export_scene.gltf(
                 filepath=output_file,
@@ -153,8 +149,7 @@ class SceneHandler:
 
     def select_object_by_name_and_make_active(self, object_name):
         selected_object = self.bpy.data.objects.get(object_name)
-        # selected_object.select_set(True)
-        # bpy.context.view_layer.objects.active = selected_object
+
         self.select_object_and_make_active(selected_object)
 
         return selected_object
@@ -223,7 +218,3 @@ class SceneHandler:
         gltf = gltf.load(gltf_file_path)
         gltf.extras = metadata
         gltf.save(gltf_file_path)
-
-        # if save_format == '.glb':
-        #     output_file_path = gltf_file_path.split('.')[0] + save_format
-        #     gltf2glb(gltf_file_path, output_file_path, override=True)

@@ -4,7 +4,6 @@ import subprocess
 from ipfs_utils import pin_asset_using_cid
 
 def pin_cids_to_ipfs():
-    # subprocess.call([r'ipfs_daemon.bat'])
     with open('webps.txt', 'r') as fd:
         lines = fd.readlines()
 

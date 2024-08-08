@@ -23,8 +23,6 @@ def get_headers(content_type):
 
 def get_asset_from_ipfs(cid):
     response = requests.get(str("https://api.nft.storage/{}".format(cid)), headers=get_headers("application/json"))
-    print(response.json())
-
 
 def upload_nft_files_to_ipfs(nft_asset_path, render_asset_path):
     destination = nft_asset_path.split('/')[len(nft_asset_path.split('/')) - 1] + ".car"
@@ -36,7 +34,6 @@ def upload_nft_files_to_ipfs(nft_asset_path, render_asset_path):
     glb_cid = iterate_over_car_files_and_upload(car_file_dest_directory, car_file_dest_file)
     glb_url = "ipfs://" + glb_cid
     print("GLB")
-    print(glb_url)
 
     webp_cid = upload_asset_to_ipfs(render_asset_path, 'image/*')
     webp_url = "ipfs://" + webp_cid
@@ -52,8 +49,7 @@ def upload_asset_to_ipfs(asset_file, format):
             data=open(asset_file, 'rb'), 
             headers=get_headers(format)
         )
-        print("Uploaded")
-        print(response.json())
+
         if response.ok == True:
             cid = response.json()["value"]["cid"]
             return cid
@@ -66,32 +62,24 @@ def upload_asset_to_ipfs(asset_file, format):
 def pack_and_split_CAR_file(asset_path, output_path):
     in_path = '"{fname}"'.format(fname=asset_path)
     out_path = '"{fname}"'.format(fname=output_path)
-    print(in_path)
-    print(out_path)
+
     ipfs_car_command = "ipfs-car --pack " + str(in_path) + " --output " + str(out_path)
     carbites_command = "carbites split " + str(out_path) + " --size 100MB --strategy treewalk"
 
     # pack CAR file, capture CID
     ipfs_car_command_output = subprocess.run(ipfs_car_command, shell=True, capture_output=True)
-    print(ipfs_car_command_output)
-    # cid["value"] = re.match(r"b'root\sCID:\s(.+?)\\n.*", str(command_output.stdout)).groups()[0]
 
     # split CAR file
-    # os.system("carbites split " + out_path + " --size 100MB --strategy treewalk")
     carbites_command_output = subprocess.run(carbites_command, shell=True, capture_output=True)
-    print(carbites_command_output)
 
 def pin_asset_using_cid(cid):
     command = "ipfs pin add " + cid
 
-    print("Pinning asset " + cid)
     command_output = subprocess.run(command, shell=True, capture_output=True)
-    print(command_output)
 
 def iterate_over_car_files_and_upload(car_file_dest_directory, car_file_output_path):
     glb_cid = ""
-    print("car files")
-    print(os.listdir(car_file_dest_directory))
+
     for car_file in os.listdir(car_file_dest_directory):
         car_file_path = os.path.join(car_file_dest_directory, car_file)
 
@@ -100,7 +88,6 @@ def iterate_over_car_files_and_upload(car_file_dest_directory, car_file_output_p
             continue
 
         glb_cid = upload_asset_to_ipfs(car_file_path, 'application/car')
-        print(car_file_path + "   CID: " + glb_cid + "\n")
 
     return glb_cid
 
@@ -190,7 +177,6 @@ def get_file_name_from_ipfs_dir(cid):
 
 def add_ipfs_data_to_kc_metadata(asset_file_name, ipfs_url, destination):
     kadcar_metadata = extract_data_from_json(asset_file_name)
-    print(kadcar_metadata)
 
     if destination == 'webp':
         kadcar_metadata["webp-ipfs"] = ipfs_url

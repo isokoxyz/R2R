@@ -34,7 +34,9 @@ This application is intended to be a server-side application since it includes h
 Below are the requirements to use this in a production environment:
 * NVIDIA RTX GPU
   * This is to get reliable rendering and blender operation performance
+    * Other devices can be used but testing on intel GPU on mac produced poor results and took a very long time
   * RTX 3080 was used in testing
+  * Install CUDA for NVIDIA device
 * Linux or UNIX OS
   * This is to enable the execution of pact transactions with the subprocess python module as this application uses the kad_py library to execute pact transactions
 * Install and set up [pact](https://github.com/kadena-io/pact)
